@@ -1,0 +1,19 @@
+# Remote (production) database credentials — never commit
+config/database.remote.php
+config/database.local.php
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# Dependencies
+node_modules/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
