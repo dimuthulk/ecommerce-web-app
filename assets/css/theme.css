@@ -1,0 +1,32 @@
+:root {
+    /* Primary Colors */
+    --primary-color: #ff4757;
+    --primary-hover: #ff6b81;
+
+    /* Neutral Colors */
+    --text-color: #2f3542;
+    --bg-color: #f1f2f6;
+    --white: #ffffff;
+    --gray: #ced6e0;
+
+    /* Typography */
+    --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    /* Spacing & Borders */
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
