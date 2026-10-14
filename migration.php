@@ -1,16 +1,7 @@
 <?php
-/**
- * migration.php — runs database/migrations.sql on the correct database.
- *
- * Local  : php migration.php            (CLI)   or  http://localhost/.../migration.php
- * Remote : https://your-site.com/migration.php?key=YOUR_SECRET_KEY
- *
- * Remote secret: add this line to config/database.remote.php (the file that is NOT in git):
- *     define('MIGRATION_SECRET', 'long-random-string');
- */
 
-const CONFIG_LOCAL  = __DIR__ . '/config/database.local.php';  // defines $pdo (ecommerce_web_app)
-const CONFIG_REMOTE = __DIR__ . '/config/database.remote.php'; // defines $pdo (if0_43161606_ecommerce_web_app)
+const CONFIG_LOCAL  = __DIR__ . '/config/database.local.php';
+const CONFIG_REMOTE = __DIR__ . '/config/database.remote.php';
 const SQL_FILE      = __DIR__ . '/database/migrations.sql';
 
 // ───── 1. Local or remote? ─────
