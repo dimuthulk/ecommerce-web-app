@@ -1,16 +1,27 @@
 :root {
+    /* ---------- Colours ---------- */
     --color-ink: #10111e;
+    /* headings, body text, dark UI      */
     --color-muted: #62626c;
+    /* secondary text, captions          */
     --color-border: #eceff8;
+    /* hairlines, card & button borders  */
     --color-line: #c8cbd7;
+    /* placeholder icons, strong borders */
     --color-surface: #f7f7fa;
+    /* image placeholders, footer bg     */
     --color-white: #ffffff;
+    /* page background                   */
     --color-accent: #cb3025;
+    /* brand red: links, CTA, eyebrows   */
     --color-accent-tint: #fff1f0;
+    /* promo cards, notices              */
 
+    /* Not in the design: derived states, change if the designer defines them */
     --color-accent-hover: #b32a20;
     --color-focus: #10111e;
 
+    /* ---------- Typography ---------- */
     --font-family: 'Rubik', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 
     --fw-regular: 400;
@@ -30,6 +41,8 @@
     /* 20  card titles                     */
     --fs-lg: 1.5rem;
     /* 24  logo                            */
+    --fs-title: 1.75rem;
+    /* 28  promo + brand card titles       */
     --fs-xl: 2rem;
     /* 32  section headings                */
     --fs-2xl: 3rem;
