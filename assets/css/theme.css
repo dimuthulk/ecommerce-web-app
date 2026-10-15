@@ -23,6 +23,8 @@
     /* brand red: links, CTA, eyebrows   */
     --color-accent-tint: #fff1f0;
     /* promo cards, notices              */
+    --color-success: #226644;
+    /* "In stock" text                    */
 
     /* Not in the design: derived states, change if the designer defines them */
     --color-accent-hover: #b32a20;
