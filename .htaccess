@@ -1,44 +1,27 @@
-# Block direct browser access to internal folders (PHP includes still work)
-
-RedirectMatch 404 ^/database/
-RedirectMatch 404 ^/config/
-
-# FTP-Deploy-Action's sync state file
-
-<Files ".ftp-deploy-sync-state.json">
-Require all denied
-</Files>
-
-RedirectMatch 404 ^/data/
-
 RewriteEngine On
 
 # ---------- 1) Block direct browser access to internal folders ----------
-
 # (PHP includes still work; only HTTP requests are blocked.)
-
 RewriteRule ^(config|database|data|components)(/|$) - [R=404,L]
 
 # FTP-Deploy-Action's sync state file
-
 <Files ".ftp-deploy-sync-state.json">
-Require all denied
+  Require all denied
 </Files>
 
 # ---------- 2) Clean URLs: hide ".php" everywhere ----------
-
-# /folder/index.php -> /folder/
-
-RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^\s?]_/)index\.php(\?[^\s]_)?\sHTTP/ [NC]
+# /folder/index.php  ->  /folder/
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^\s?]*/)index\.php(\?[^\s]*)?\sHTTP/ [NC]
 RewriteRule ^ %1 [R=301,L,NE]
 
-# /page.php?x=1 -> /page?x=1 (the query string is kept automatically)
-
-RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^\s?]_)\.php(\?[^\s]_)?\sHTTP/ [NC]
+# /page.php?x=1  ->  /page?x=1   (the query string is kept automatically)
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^\s?]*)\.php(\?[^\s]*)?\sHTTP/ [NC]
 RewriteRule ^ %1 [R=301,L,NE]
 
-# /page -> page.php (internal, only when that file exists)
+# /product/essential-cotton-tee  ->  product.php?slug=essential-cotton-tee
+RewriteRule ^product/([A-Za-z0-9._-]+)/?$ product.php?slug=$1 [L,QSA]
 
+# /page  ->  page.php   (internal, only when that file exists)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
