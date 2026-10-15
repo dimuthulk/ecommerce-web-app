@@ -1,8 +1,12 @@
 # Block direct browser access to internal folders (PHP includes still work)
+
 RedirectMatch 404 ^/database/
 RedirectMatch 404 ^/config/
 
 # FTP-Deploy-Action's sync state file
+
 <Files ".ftp-deploy-sync-state.json">
-  Require all denied
+Require all denied
 </Files>
+
+RedirectMatch 404 ^/data/
