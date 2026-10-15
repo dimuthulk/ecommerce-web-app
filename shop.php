@@ -39,17 +39,25 @@ $sizes      = ['XS', 'S', 'M', 'L', 'XL'];
 $colors     = array_values(array_unique(array_merge(...array_column($allProducts, 'colors'))));
 
 /* ---------- 3. Filter, sort, paginate ---------- */
-$availableSizes = static fn (array $p): array => array_keys(array_filter($p['stock']));   // sizes with stock > 0
-$price          = static fn (array $p): float => (float) ($p['sale_price'] ?: $p['price']);
+$price = static fn (array $p): float => (float) ($p['sale_price'] ?: $p['price']);
 
 $filtered = array_values(array_filter($allProducts, static function (array $p) use (
-    $q, $selCats, $selSizes, $selColors, $inStockOnly, $availableSizes
+    $q, $selCats, $selSizes, $selColors, $inStockOnly
 ): bool {
-    $inStock = $availableSizes($p);
+    // With a colour filter, only those colours count; sizes in stock = qty > 0 in any counted colour
+    $colorsToCheck = $selColors ? array_values(array_intersect($p['colors'], $selColors)) : $p['colors'];
+    if ($selColors && !$colorsToCheck) return false;
+
+    $inStock = [];
+    foreach ($colorsToCheck as $c) {
+        foreach ($p['stock'][$c] ?? [] as $size => $qty) {
+            if ($qty > 0) $inStock[$size] = true;
+        }
+    }
+    $inStock = array_keys($inStock);
 
     if ($q !== '' && stripos($p['name'] . ' ' . $p['category'] . ' ' . implode(' ', $p['colors']), $q) === false) return false;
     if ($selCats && !in_array($p['category'], $selCats, true))      return false;
-    if ($selColors && !array_intersect($p['colors'], $selColors))   return false;
     if ($selSizes && !array_intersect($inStock, $selSizes))         return false;
     if ($inStockOnly && !$inStock)                                  return false;
     return true;
