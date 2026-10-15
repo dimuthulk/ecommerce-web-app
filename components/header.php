@@ -1,4 +1,13 @@
 <?php
+/**
+ * Opens the page: <html>, <head>, site header and <main>.
+ * footer.php closes <main>, adds the footer and closes <body>/<html>.
+ *
+ * Usage in a page:
+ *   $pageTitle = 'Shop';                       // optional
+ *   $pageDescription = 'Everyday clothing.';   // optional
+ *   require_once __DIR__ . '/components/header.php';
+ */
 require_once __DIR__ . '/../config/app.php';
 
 $documentTitle = isset($pageTitle) ? $pageTitle . ' | ' . APP_NAME : APP_NAME;
@@ -42,16 +51,22 @@ $navLinks = [
                 </li>
                 <?php endforeach; ?>
                 <li class="nav-mobile-only">
+                    <a class="btn btn--ghost" href="<?= url('shop.php') ?>#search">Search</a>
+                </li>
+                <li class="nav-mobile-only">
                     <a class="btn btn--ghost" href="<?= url('login.php') ?>">Account</a>
                 </li>
             </ul>
         </nav>
 
         <div class="header-actions">
-            <button type="button" class="btn btn--outline header-search">Search</button>
+            <a class="btn btn--outline header-search" href="<?= url('shop.php') ?>#search">Search</a>
             <a class="btn btn--ghost header-account" href="<?= url('login.php') ?>">Account</a>
-            <a class="btn btn--outline" href="<?= url('cart.php') ?>">Bag (<span data-cart-count><?= cart_count() ?></span>)</a>
-            <button type="button" class="btn btn--outline nav-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+            <a class="btn btn--outline header-bag" href="<?= url('cart.php') ?>">Bag <span class="bag-count"><span class="bag-paren">(</span><span data-cart-count><?= cart_count() ?></span><span class="bag-paren">)</span></span></a>
+            <button type="button" class="btn btn--ghost nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+                <svg class="icon-open" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                <svg class="icon-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
         </div>
     </header>
 

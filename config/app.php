@@ -22,9 +22,15 @@ define(
         : ''
 );
 
-/** Full path to a page:  url('cart.php') */
+/**
+ * Full path to a page, with ".php" hidden:
+ *   url('shop.php?category=Shirts') -> /shop?category=Shirts
+ *   url('index.php') or url('/')    -> /
+ */
 function url(string $path = ''): string
 {
+    $path = preg_replace('/(^|\/)index\.php(?=$|[?#])/', '$1', $path);
+    $path = preg_replace('/\.php(?=$|[?#])/', '', $path);
     return BASE_URL . '/' . ltrim($path, '/');
 }
 
