@@ -3,12 +3,13 @@
  * One product card. Expects $product (array, same keys as the products table).
  *
  * @var array $product
+ *
+ * Use inside a loop:  include __DIR__ . '/components/product-card.php';
  */
-
 $name  = $product['name'];
 $color = $product['colors'][0] ?? '';
 $meta  = trim($product['category'] . ' / ' . $color, ' /');
-$link  = url('product.php?slug=' . urlencode($product['slug']));
+$link  = product_url($product['slug']);
 $image = $product['images'][0] ?? null;
 ?>
 <article class="product-card">

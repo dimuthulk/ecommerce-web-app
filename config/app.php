@@ -76,3 +76,66 @@ function image_placeholder(string $caption = '', bool $icon = true, string $vari
     return '<div class="placeholder placeholder--' . e($variant) . '" role="img" aria-label="' . e($caption) . '">'
          . $svg . $cap . '</div>';
 }
+
+/* ==========================================================================
+   Shop helpers
+   ========================================================================== */
+
+define('DELIVERY_FEE', 350);   // sample flat delivery fee in LKR (cash on delivery)
+
+/** Friendly product URL:  /product/essential-cotton-tee */
+function product_url(string $slug): string
+{
+    return url('product/' . rawurlencode($slug));
+}
+
+/** Swatch colour for a colour name (sample values; the first three come from the design). */
+function color_swatch(string $name): string
+{
+    static $map = [
+        'Chalk' => '#f5f3ef',
+        'Ink'   => '#20222b',
+        'Clay'  => '#d5a798',
+        'Sand'  => '#d9c7a6',
+        'Stone' => '#b8b4ab',
+    ];
+    return $map[$name] ?? '#c8cbd7';
+}
+
+/** Key of one cart line:  $_SESSION['cart'][ cart_key(...) ] = quantity */
+function cart_key(int $productId, string $color, string $size): string
+{
+    return $productId . '|' . $color . '|' . $size;
+}
+
+/** One-time message. flash('cart', 'Added.') stores it; flash('cart') reads and clears it. */
+function flash(string $key, ?string $message = null): ?string
+{
+    if ($message !== null) {
+        $_SESSION['flash'][$key] = $message;
+        return null;
+    }
+    $value = $_SESSION['flash'][$key] ?? null;
+    unset($_SESSION['flash'][$key]);
+    return $value;
+}
+
+/** CSRF protection for every POST form:  <?= csrf_field() ?>  +  if (!csrf_valid()) {...} */
+function csrf_token(): string
+{
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf'];
+}
+
+function csrf_field(): string
+{
+    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
+}
+
+function csrf_valid(): bool
+{
+    $sent = $_POST['csrf'] ?? '';
+    return is_string($sent) && hash_equals(csrf_token(), $sent);
+}
