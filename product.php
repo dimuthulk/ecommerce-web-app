@@ -60,10 +60,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!in_array($postedColor, $colors, true) || $available < 1) {
         $formError = 'Please choose an available size.';
     } else {
-        $key = cart_key((int) $product['id'], $postedColor, $postedSize);
-        $_SESSION['cart'][$key] = min(($_SESSION['cart'][$key] ?? 0) + $qty, $available);
+        $key    = cart_key((int) $product['id'], $postedColor, $postedSize);
+        $before = (int) ($_SESSION['cart'][$key] ?? 0);
+        $after  = min($before + $qty, $available);
+        $_SESSION['cart'][$key] = $after;
 
-        flash('cart', 'Added to bag.');
+        $what = $product['name'] . ' · ' . $postedColor . ' / ' . $postedSize;
+        $view = ['action_label' => 'View bag', 'action_url' => url('cart.php')];
+
+        if ($after === $before) {
+            toast('Already at the maximum', 'info', ['text' => 'Only ' . $available . ' available in ' . $postedColor . ' / ' . $postedSize . '.'] + $view);
+        } elseif ($after < $before + $qty) {
+            toast('Added to bag', 'success', ['text' => $what . ' · only ' . $available . ' available'] + $view);
+        } else {
+            toast('Added to bag', 'success', ['text' => $what . ($qty > 1 ? ' · Qty ' . $qty : '')] + $view);
+        }
         header('Location: ' . product_url($product['slug']) . '?' . http_build_query(['color' => $postedColor, 'size' => $postedSize]) . '#purchase');
         exit;
     }
@@ -116,8 +127,6 @@ $media = static function (int $i, bool $main) use ($product, $views): string {
 // "Complete your everyday edit": other products, different categories first
 $related = array_values(array_filter($allProducts, static fn (array $p): bool => $p['id'] !== $product['id'] && $p['category'] !== $product['category']));
 $related = array_slice($related, 0, 3);
-
-$status = flash('cart');
 
 $pageTitle       = $product['name'];
 $pageDescription = $description;
@@ -215,8 +224,6 @@ require_once __DIR__ . '/components/header.php';
 
                 <?php if ($formError): ?>
                     <p class="form-status form-status--error" role="alert"><?= e($formError) ?></p>
-                <?php elseif ($status): ?>
-                    <p class="form-status" role="status"><?= e($status) ?> <a href="<?= url('cart.php') ?>">View bag</a></p>
                 <?php endif; ?>
             </form>
 

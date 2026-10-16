@@ -1,4 +1,6 @@
 <?php
+/** Closes <main>, outputs the site footer and closes <body>/<html>. */
+
 $footerLinks = [
     [
         'Shop'      => 'shop.php',
@@ -44,6 +46,8 @@ $footerLinks = [
             </div>
         </div>
     </footer>
+
+    <?php include __DIR__ . '/toast.php'; ?>
 
     <script src="<?= asset('js/main.js') ?>" defer></script>
 </body>

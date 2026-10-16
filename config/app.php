@@ -139,3 +139,75 @@ function csrf_valid(): bool
     $sent = $_POST['csrf'] ?? '';
     return is_string($sent) && hash_equals(csrf_token(), $sent);
 }
+
+/* ==========================================================================
+   Data + database helpers
+   ========================================================================== */
+
+/** All products. Sample data for now (data/products.php); later: SELECT from the products table. */
+function all_products(): array
+{
+    static $products = null;
+    if ($products === null) {
+        $products = require __DIR__ . '/../data/products.php';
+    }
+    return $products;
+}
+
+/** PDO connection. config/database.php picks database.local.php or database.remote.php. */
+function db(): PDO
+{
+    static $connection = null;
+
+    if ($connection === null) {
+        if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
+            $connection = $GLOBALS['pdo'];          // already created by an earlier include
+        } else {
+            require __DIR__ . '/database.php';      // creates $pdo
+            $connection = $pdo;
+        }
+    }
+    return $connection;
+}
+
+/** Send the browser to another page and stop. */
+function redirect(string $location): void
+{
+    header('Location: ' . $location);
+    exit;
+}
+
+
+/* ==========================================================================
+   Toast notifications (rendered by components/toast.php, which footer.php includes)
+   ========================================================================== */
+
+/**
+ * Queue a toast. It shows on the next page view (or on this one if the footer has not run yet).
+ *
+ *   toast('Added to bag', 'success', [
+ *       'text'         => 'Essential Cotton Tee · Chalk / M',   // optional second line
+ *       'action_label' => 'View bag',                           // optional link
+ *       'action_url'   => url('cart.php'),
+ *   ]);
+ *
+ * Types: 'success' (default look), 'error', 'info'.
+ */
+function toast(string $title, string $type = 'info', array $options = []): void
+{
+    $_SESSION['toasts'][] = [
+        'title'        => $title,
+        'type'         => in_array($type, ['success', 'error', 'info'], true) ? $type : 'info',
+        'text'         => (string) ($options['text'] ?? ''),
+        'action_label' => (string) ($options['action_label'] ?? ''),
+        'action_url'   => (string) ($options['action_url'] ?? ''),
+    ];
+}
+
+/** Take (and clear) the queued toasts. */
+function toasts_pull(): array
+{
+    $queued = $_SESSION['toasts'] ?? [];
+    unset($_SESSION['toasts']);
+    return $queued;
+}
