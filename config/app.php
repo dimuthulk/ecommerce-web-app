@@ -83,6 +83,10 @@ function image_placeholder(string $caption = '', bool $icon = true, string $vari
 
 define('DELIVERY_FEE', 350);   // sample flat delivery fee in LKR (cash on delivery)
 
+// Set to true once order emails are really sent (PHPMailer + SMTP). Until then the
+// "Order email" notice on the confirmation page stays hidden, so we never promise an email we don't send.
+define('ORDER_EMAILS_ENABLED', false);
+
 /** Friendly product URL:  /product/essential-cotton-tee */
 function product_url(string $slug): string
 {
@@ -165,6 +169,13 @@ function db(): PDO
         } else {
             require __DIR__ . '/database.php';      // creates $pdo
             $connection = $pdo;
+        }
+
+        // Dates (orders.created_at ...) in Sri Lanka time, whatever the database server's own time zone is
+        try {
+            $connection->exec("SET time_zone = '+05:30'");
+        } catch (Throwable $e) {
+            // not critical
         }
     }
     return $connection;
