@@ -208,6 +208,150 @@ document.addEventListener("DOMContentLoaded", () => {
     update();
   }
 
+  /* ---------- Toasts ---------- */
+  const toastRegion = document.getElementById("toast-region");
+
+  if (toastRegion) {
+    const dismissToast = (toast) => {
+      if (!toast || toast.classList.contains("is-leaving")) return;
+      toast.classList.add("is-leaving");
+      toast.addEventListener("animationend", () => toast.remove(), {
+        once: true,
+      });
+      setTimeout(() => toast.remove(), 400); // safety net
+    };
+
+    // Fade away after a few seconds; the clock stops while the mouse or keyboard is on the toast
+    const armToast = (toast) => {
+      let remaining = parseInt(toast.dataset.timeout || "5000", 10);
+      if (!remaining) return; // 0 = stay until closed
+
+      let timer = null;
+      let startedAt = 0;
+      let paused = false;
+
+      const start = () => {
+        paused = false;
+        clearTimeout(timer);
+        startedAt = Date.now();
+        timer = setTimeout(() => dismissToast(toast), remaining);
+      };
+      const pause = () => {
+        if (paused) return;
+        paused = true;
+        clearTimeout(timer);
+        remaining = Math.max(1500, remaining - (Date.now() - startedAt));
+      };
+
+      toast.addEventListener("mouseenter", pause);
+      toast.addEventListener("mouseleave", () => {
+        if (!toast.contains(document.activeElement)) start();
+      });
+      toast.addEventListener("focusin", pause);
+      toast.addEventListener("focusout", () => {
+        if (!toast.matches(":hover")) start();
+      });
+      start();
+    };
+
+    toastRegion.querySelectorAll("[data-toast]").forEach(armToast);
+
+    toastRegion.addEventListener("click", (event) => {
+      const closeButton = event.target.closest("[data-toast-close]");
+      if (closeButton) dismissToast(closeButton.closest("[data-toast]"));
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape")
+        toastRegion.querySelectorAll("[data-toast]").forEach(dismissToast);
+    });
+
+    // showToast({ title: 'Saved', text: 'Optional second line', type: 'success' | 'error' | 'info',
+    //             actionLabel: 'Undo', actionUrl: '/somewhere', timeout: 5000 })
+    const toastIcons = {
+      success: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+      error: '<path d="M12 6.5v7M12 17.5h.01"/>',
+      info: '<path d="M12 10.5v7M12 6.5h.01"/>',
+    };
+    const toastTimeouts = { success: 5000, info: 6000, error: 8000 };
+
+    window.showToast = ({
+      title,
+      text = "",
+      type = "info",
+      actionLabel = "",
+      actionUrl = "",
+      timeout,
+    } = {}) => {
+      if (!title) return;
+      if (!toastIcons[type]) type = "info";
+
+      const toast = document.createElement("div");
+      toast.className = "toast toast--" + type;
+      toast.setAttribute("role", type === "error" ? "alert" : "status");
+      toast.dataset.toast = "";
+      toast.dataset.timeout = String(timeout ?? toastTimeouts[type]);
+
+      const icon = document.createElement("span");
+      icon.className = "toast__icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' +
+        toastIcons[type] +
+        "</svg>"; // fixed markup, no user text
+
+      const body = document.createElement("div");
+      body.className = "toast__body";
+      const heading = document.createElement("p");
+      heading.className = "toast__title";
+      heading.textContent = title;
+      body.append(heading);
+      if (text) {
+        const line = document.createElement("p");
+        line.className = "toast__text";
+        line.textContent = text;
+        body.append(line);
+      }
+      toast.append(icon, body);
+
+      if (actionLabel && actionUrl && !/^\s*javascript:/i.test(actionUrl)) {
+        const link = document.createElement("a");
+        link.className = "toast__action";
+        link.href = actionUrl;
+        link.textContent = actionLabel;
+        toast.append(link);
+      }
+
+      const close = document.createElement("button");
+      close.type = "button";
+      close.className = "toast__close";
+      close.setAttribute("aria-label", "Dismiss notification");
+      close.dataset.toastClose = "";
+      close.textContent = "\u00d7";
+      toast.append(close);
+
+      toastRegion.append(toast);
+      while (toastRegion.children.length > 3)
+        toastRegion.firstElementChild.remove(); // keep the screen tidy
+      armToast(toast);
+    };
+  }
+
+  /* ---------- Cart: quantity box saves when changed ---------- */
+  document
+    .querySelectorAll(".cart-line__controls .qty__input")
+    .forEach((input) => {
+      input.addEventListener("change", () => {
+        const form = input.form;
+        const saveButton = form.querySelector(
+          'button[name="action"][value="set"]',
+        );
+        if (form.requestSubmit) form.requestSubmit(saveButton);
+        else form.submit();
+      });
+    });
+
   /* ---------- "Search" in the header jumps to the shop search box ---------- */
   const focusSearch = () => {
     if (location.hash !== "#search") return;
