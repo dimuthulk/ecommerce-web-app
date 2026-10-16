@@ -1095,6 +1095,331 @@ a.page-link:hover {
 }
 
 /* ==========================================================================
+   Cards, alerts, textarea (cart, checkout, confirmation)
+   ========================================================================== */
+.page-top {
+    padding-top: var(--space-8);
+}
+
+.card {
+    padding: var(--space-5);
+    background: var(--color-white);
+    border: var(--border);
+    border-radius: var(--radius-md);
+}
+
+.btn--block {
+    width: 100%;
+}
+
+.alert {
+    margin-top: var(--space-5);
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    color: var(--color-ink);
+}
+
+.alert--error {
+    background: var(--color-accent-tint);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.textarea {
+    display: block;
+    width: 100%;
+    min-height: 7.5rem;
+    padding: 0.75rem;
+    background-color: var(--color-white);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-base);
+    color: var(--color-ink);
+    resize: vertical;
+    transition: border-color var(--transition);
+}
+
+.textarea::placeholder {
+    color: var(--color-muted);
+}
+
+.textarea:hover,
+.textarea:focus {
+    border-color: var(--color-line);
+}
+
+.input[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+    border-color: var(--color-accent);
+}
+
+.field-error {
+    margin-top: var(--space-2);
+    font-size: var(--fs-xs);
+    color: var(--color-accent);
+}
+
+.qty__btn:disabled {
+    background: var(--color-border);
+    color: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.placeholder--thumb {
+    aspect-ratio: 4 / 5;
+}
+
+.placeholder--thumb svg {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* ==========================================================================
+   Cart
+   ========================================================================== */
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 24rem;
+    gap: var(--space-6);
+    align-items: start;
+    margin-top: var(--space-6);
+}
+
+.cart-continue {
+    margin-top: var(--space-5);
+}
+
+.cart-line+.cart-line {
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: var(--border);
+}
+
+.cart-line__top {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: var(--space-4);
+}
+
+.cart-line__image {
+    display: block;
+}
+
+.cart-line__image img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+}
+
+.cart-line__name {
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-base);
+}
+
+.cart-line__name a:hover {
+    color: var(--color-accent);
+}
+
+.cart-line__meta,
+.cart-line__price {
+    margin-top: var(--space-2);
+    font-size: var(--fs-sm);
+}
+
+.cart-line__price {
+    color: var(--color-ink);
+}
+
+.cart-line__each {
+    margin-left: var(--space-2);
+    font-size: var(--fs-xs);
+    color: var(--color-muted);
+}
+
+.cart-line__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+}
+
+.cart-line__note {
+    margin-top: var(--space-5);
+    font-size: var(--fs-sm);
+}
+
+.cart-line__note--warn {
+    font-weight: var(--fw-medium);
+    color: var(--color-accent);
+}
+
+/* order summary */
+.summary__title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-base);
+}
+
+.summary__rows {
+    margin-top: var(--space-4);
+}
+
+.summary__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    font-size: var(--fs-sm);
+    color: var(--color-ink);
+}
+
+.summary__row dd {
+    margin: 0;
+}
+
+.summary__row+.summary__row {
+    margin-top: var(--space-4);
+}
+
+.summary__row--total {
+    padding-top: var(--space-4);
+    border-top: var(--border);
+    font-weight: var(--fw-bold);
+}
+
+.summary .btn--block {
+    margin-top: var(--space-5);
+}
+
+.summary .form-note {
+    margin-top: var(--space-3);
+}
+
+.summary__payment {
+    margin-top: var(--space-4);
+    font-size: var(--fs-sm);
+    color: var(--color-ink);
+}
+
+/* ==========================================================================
+   Checkout + confirmation
+   ========================================================================== */
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 22.5rem;
+    gap: var(--space-6);
+    align-items: start;
+    margin-top: var(--space-6);
+}
+
+.checkout-main,
+.checkout-aside {
+    display: grid;
+    gap: var(--space-5);
+}
+
+.form-card h2 {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-base);
+}
+
+.form-card__intro,
+.form-card__text {
+    margin-top: var(--space-3);
+    font-size: var(--fs-sm);
+}
+
+.form-card__text {
+    color: var(--color-ink);
+}
+
+.form-card a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.form-card .check {
+    margin-top: var(--space-3);
+}
+
+.form-card .field>label {
+    font-size: var(--fs-xs);
+}
+
+.form-grid {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+}
+
+.form-grid__pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+.checkout-confirm {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.checkout-confirm .check a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.checkout-confirm .btn--ghost {
+    justify-self: start;
+}
+
+.mini-lines {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.mini-line {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: var(--space-4);
+    align-items: start;
+}
+
+.mini-line__image img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+}
+
+.mini-line__info {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.mini-line__name {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+}
+
+.mini-line__meta {
+    font-size: var(--fs-xs);
+    color: var(--color-muted);
+}
+
+.mini-line__price {
+    font-size: var(--fs-xs);
+    color: var(--color-ink);
+}
+
+/* ==========================================================================
    Responsive — tablet (<= 1024px, 768 design)
    ========================================================================== */
 @media (max-width: 1024px) {
@@ -1378,5 +1703,158 @@ a.page-link:hover {
     .product-grid--related .placeholder svg {
         width: 4.5rem;
         height: 4.5rem;
+    }
+}
+
+/* ==========================================================================
+   Cart + checkout — responsive
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .page-top {
+        padding-top: var(--space-6);
+    }
+
+    .cart-layout,
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .form-grid__pair {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   Toast notifications (components/toast.php + showToast() in main.js)
+   ========================================================================== */
+.toast-region {
+    position: fixed;
+    right: var(--space-5);
+    bottom: max(var(--space-5), env(safe-area-inset-bottom));
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    width: min(24rem, calc(100vw - 2 * var(--space-4)));
+    pointer-events: none;
+    /* only the toasts themselves are clickable */
+}
+
+.toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-white);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgb(16 17 30 / 0.12);
+    pointer-events: auto;
+    animation: toast-in 200ms ease-out;
+}
+
+.toast.is-leaving {
+    animation: toast-out 160ms ease-in forwards;
+}
+
+.toast__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--color-ink);
+    border-radius: 50%;
+    color: var(--color-white);
+}
+
+.toast--success .toast__icon {
+    background: var(--color-success);
+}
+
+.toast--error .toast__icon {
+    background: var(--color-accent);
+}
+
+.toast__icon svg {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+.toast__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast__title {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-base);
+    color: var(--color-ink);
+}
+
+.toast__text {
+    margin-top: 2px;
+    font-size: var(--fs-xs);
+}
+
+.toast__action {
+    flex: none;
+    align-self: center;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.toast__action:hover {
+    color: var(--color-accent-hover);
+}
+
+.toast__close {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    margin: -0.25rem -0.5rem -0.25rem 0;
+    border-radius: var(--radius-sm);
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--color-muted);
+    transition: background-color var(--transition);
+}
+
+.toast__close:hover {
+    background: var(--color-surface);
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes toast-out {
+    to {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+@media (max-width: 560px) {
+    .toast-region {
+        right: var(--space-4);
+        left: var(--space-4);
+        bottom: max(var(--space-4), env(safe-area-inset-bottom));
+        width: auto;
     }
 }
