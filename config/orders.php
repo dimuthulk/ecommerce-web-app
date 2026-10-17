@@ -94,3 +94,50 @@ function find_order(int $id): ?array
 
     return $order;
 }
+
+/** One order by its number (CB-1001) with items, or null. */
+function find_order_by_number(string $number): ?array
+{
+    $stmt = db()->prepare('SELECT id FROM orders WHERE order_number = ?');
+    $stmt->execute([$number]);
+    $id = $stmt->fetchColumn();
+
+    return $id ? find_order((int) $id) : null;
+}
+
+/** A customer's orders (newest first), each with its items. */
+function orders_for_user(int $userId, int $limit = 50): array
+{
+    $pdo  = db();
+    $stmt = $pdo->prepare('SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC LIMIT ' . (int) $limit);
+    $stmt->execute([$userId]);
+    $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!$orders) {
+        return [];
+    }
+
+    $ids  = array_column($orders, 'id');
+    $in   = implode(',', array_fill(0, count($ids), '?'));
+    $stmt = $pdo->prepare("SELECT * FROM order_items WHERE order_id IN ($in) ORDER BY id");
+    $stmt->execute($ids);
+
+    $byOrder = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $item) {
+        $byOrder[$item['order_id']][] = $item;
+    }
+    foreach ($orders as &$order) {
+        $order['items'] = $byOrder[$order['id']] ?? [];
+    }
+    return $orders;
+}
+
+/** Label + CSS class for an order status. */
+function order_status_badge(string $status): array
+{
+    $active = ['confirmed', 'processing', 'shipped', 'delivered'];
+    return [
+        ucfirst($status),
+        $status === 'pending' ? 'status-badge--pending' : (in_array($status, $active, true) ? 'status-badge--active' : ''),
+    ];
+}

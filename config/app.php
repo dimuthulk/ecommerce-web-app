@@ -3,10 +3,6 @@
 
 date_default_timezone_set('Asia/Colombo');
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 define('APP_NAME', '[Clothing Brand]');            // replace when the client supplies the brand name
 define('APP_TAGLINE', 'Everyday pieces. Considered style.');
 define('APP_CURRENCY', 'LKR');
@@ -21,6 +17,25 @@ define(
         ? rtrim(substr($projectRoot, strlen($docRoot)), '/')
         : ''
 );
+
+// Sessions: the cookie is HTTP-only, same-site, and "secure" on https
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => BASE_URL !== '' ? BASE_URL . '/' : '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+        'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    ]);
+    session_start();
+}
+
+// True on localhost / 127.0.0.1 (development), false on the live site
+$hostName = explode(':', $_SERVER['HTTP_HOST'] ?? 'localhost')[0];
+define('IS_LOCAL', PHP_SAPI === 'cli' || in_array($hostName, ['localhost', '127.0.0.1', '::1'], true));
+
+// Site address used in e-mail links, e.g. 'https://your-site.infinityfreeapp.com'. Empty = detect from the request.
+define('APP_URL', '');
 
 /**
  * Full path to a page, with ".php" hidden:
@@ -86,6 +101,11 @@ define('DELIVERY_FEE', 350);   // sample flat delivery fee in LKR (cash on deliv
 // Set to true once order emails are really sent (PHPMailer + SMTP). Until then the
 // "Order email" notice on the confirmation page stays hidden, so we never promise an email we don't send.
 define('ORDER_EMAILS_ENABLED', false);
+
+// E-mail sending (password reset links ...). While false, mails are only written to storage/mail.log
+// and the live site tells visitors that reset-by-email is not available yet.
+define('MAIL_ENABLED', false);
+define('MAIL_FROM', 'no-reply@example.com');
 
 /** Friendly product URL:  /product/essential-cotton-tee */
 function product_url(string $slug): string
@@ -221,4 +241,27 @@ function toasts_pull(): array
     $queued = $_SESSION['toasts'] ?? [];
     unset($_SESSION['toasts']);
     return $queued;
+}
+
+
+/** Full URL (with https://host) for links inside e-mails. */
+function absolute_url(string $path = ''): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $origin = APP_URL !== '' ? rtrim(APP_URL, '/') : $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    return $origin . url($path);
+}
+
+
+/** Cheap check (no database): is there a signed-in session? (accounts live in config/auth.php) */
+function is_logged_in(): bool
+{
+    return !empty($_SESSION['user_id']);
+}
+
+
+/** "1 item" / "3 items" */
+function items_label(int $count): string
+{
+    return $count . ' item' . ($count === 1 ? '' : 's');
 }
