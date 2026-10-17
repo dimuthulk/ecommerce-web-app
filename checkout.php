@@ -2,6 +2,7 @@
 require_once __DIR__ . '/config/app.php';
 require_once __DIR__ . '/config/cart.php';
 require_once __DIR__ . '/config/orders.php';
+require_once __DIR__ . '/config/auth.php';
 
 /* ---------- 1. The bag must have orderable items ---------- */
 $lines = cart_lines();
@@ -18,6 +19,21 @@ if (!$totals['all_ok']) {
 /* ---------- 2. Place the order (POST) ---------- */
 $old    = ['name' => '', 'email' => '', 'phone' => '', 'line1' => '', 'line2' => '', 'city' => '', 'postal' => '', 'notes' => ''];
 $errors = [];
+
+// Signed-in customers get their saved details filled in
+$account = is_logged_in() ? auth_user() : null;
+if ($account !== null) {
+    $old = [
+        'name'   => user_display_name($account),
+        'email'  => $account['email'],
+        'phone'  => (string) $account['phone'],
+        'line1'  => (string) $account['address_line1'],
+        'line2'  => (string) $account['address_line2'],
+        'city'   => (string) $account['city'],
+        'postal' => (string) $account['postal_code'],
+        'notes'  => '',
+    ];
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($old as $field => $_) {
@@ -112,7 +128,13 @@ require_once __DIR__ . '/components/header.php';
 
             <section class="card form-card">
                 <h2>Contact details</h2>
-                <p class="form-card__intro">Already have an account? <a href="<?= url('login.php') ?>">Log in</a> to use your saved details.</p>
+                <p class="form-card__intro">
+                    <?php if ($account !== null): ?>
+                        Signed in as <strong><?= e($account['email']) ?></strong>. We filled in your saved details.
+                    <?php else: ?>
+                        Already have an account? <a href="<?= url('login.php') ?>?next=<?= rawurlencode(url('checkout.php')) ?>">Log in</a> to use your saved details.
+                    <?php endif; ?>
+                </p>
 
                 <div class="form-grid">
                     <div class="field">
