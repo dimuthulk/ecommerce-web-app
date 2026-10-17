@@ -2,7 +2,7 @@ RewriteEngine On
 
 # ---------- 1) Block direct browser access to internal folders ----------
 # (PHP includes still work; only HTTP requests are blocked.)
-RewriteRule ^(config|database|data|components)(/|$) - [R=404,L]
+RewriteRule ^(config|database|data|components|storage)(/|$) - [R=404,L]
 
 # FTP-Deploy-Action's sync state file
 <Files ".ftp-deploy-sync-state.json">
@@ -20,6 +20,9 @@ RewriteRule ^ %1 [R=301,L,NE]
 
 # /product/essential-cotton-tee  ->  product.php?slug=essential-cotton-tee
 RewriteRule ^product/([A-Za-z0-9._-]+)/?$ product.php?slug=$1 [L,QSA]
+
+# /orders/CB-1001  ->  order-detail.php?number=CB-1001
+RewriteRule ^orders/([A-Za-z0-9-]+)/?$ order-detail.php?number=$1 [L,QSA]
 
 # /page  ->  page.php   (internal, only when that file exists)
 RewriteCond %{REQUEST_FILENAME} !-d
