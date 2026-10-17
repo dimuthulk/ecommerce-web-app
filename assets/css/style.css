@@ -462,6 +462,15 @@ a.chip:hover {
     border-color: var(--color-line);
 }
 
+.input:focus,
+.select:focus,
+.textarea:focus {
+    border-color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+    /* 2px dark border, as in the design */
+    outline: none;
+}
+
 .select {
     appearance: none;
     padding-right: 2.5rem;
@@ -1574,6 +1583,228 @@ a.page-link:hover {
 }
 
 /* ==========================================================================
+   Account pages: login, register, password reset, profile, orders, order detail
+   ========================================================================== */
+.field-hint {
+    margin-top: var(--space-2);
+    font-size: var(--fs-xs);
+}
+
+/* login / register / forgot / reset */
+.auth {
+    display: grid;
+    grid-template-columns: 7fr 6fr;
+    column-gap: var(--space-8);
+    align-items: start;
+    margin-top: var(--space-6);
+}
+
+.auth-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 37.5rem;
+    padding: var(--space-7);
+    background: var(--color-accent-tint);
+}
+
+.auth-panel__title {
+    margin-top: var(--space-5);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-bold);
+    line-height: var(--lh-tight);
+    color: var(--color-ink);
+}
+
+.auth-panel__text {
+    margin-top: var(--space-5);
+    font-size: var(--fs-base);
+}
+
+.auth-panel__brand {
+    margin-top: var(--space-5);
+    font-size: var(--fs-xs);
+}
+
+.auth-main {
+    padding-top: var(--space-4);
+}
+
+.auth-main h1 {
+    font-size: var(--fs-page-title);
+}
+
+.auth-lead {
+    margin-top: var(--space-6);
+}
+
+.auth-form {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-5);
+}
+
+.auth-form .field>label {
+    font-weight: var(--fw-bold);
+}
+
+.auth-actions {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.auth-main>.auth-actions {
+    margin-top: var(--space-5);
+}
+
+.auth-actions__start {
+    justify-self: start;
+    margin-bottom: calc(var(--space-2) * -1);
+}
+
+.auth-note {
+    font-size: var(--fs-xs);
+}
+
+.auth-note a,
+.auth-lead a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.auth-lead strong {
+    color: var(--color-ink);
+}
+
+.alert code {
+    font-size: var(--fs-xs);
+}
+
+.alert a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    word-break: break-all;
+}
+
+/* profile */
+.account-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+}
+
+.account-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+    align-items: start;
+    margin-top: var(--space-5);
+}
+
+.account-grid__wide {
+    grid-column: 1 / -1;
+}
+
+.account-grid__wide form {
+    margin-top: var(--space-4);
+}
+
+.form-note--flush {
+    margin-top: 0;
+}
+
+/* my orders */
+.orders-list {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-5);
+}
+
+.order-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.order-card__head h2 {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-base);
+}
+
+.order-card__meta {
+    margin-top: var(--space-3);
+    font-size: var(--fs-sm);
+    color: var(--color-ink);
+}
+
+.order-row--total {
+    margin-top: var(--space-5);
+}
+
+.order-card__button {
+    margin-top: var(--space-5);
+}
+
+.order-card .confirm-note {
+    margin-top: var(--space-4);
+}
+
+/* order detail */
+.order-progress {
+    margin-top: var(--space-5);
+}
+
+.progress {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    font-size: var(--fs-sm);
+}
+
+.progress__step--done {
+    color: var(--color-ink);
+}
+
+.progress__step--current {
+    color: var(--color-accent);
+    font-weight: var(--fw-medium);
+}
+
+.progress__step--todo {
+    color: var(--color-muted);
+}
+
+.order-progress__halt {
+    margin-top: var(--space-4);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--color-accent);
+}
+
+.order-progress .confirm-note {
+    margin-top: var(--space-4);
+}
+
+.detail-line {
+    margin-top: var(--space-4);
+    font-size: var(--fs-base);
+    line-height: var(--lh-base);
+    color: var(--color-ink);
+}
+
+.history-entry+.history-entry {
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: var(--border);
+}
+
+/* ==========================================================================
    Responsive — tablet (<= 1024px, 768 design)
    ========================================================================== */
 @media (max-width: 1024px) {
@@ -2024,5 +2255,33 @@ a.page-link:hover {
     .confirm-summary {
         grid-column: 1;
         grid-row: auto;
+    }
+}
+
+/* ==========================================================================
+   Account pages — responsive
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .auth {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-panel {
+        display: none;
+        /* the promo panel only appears on desktop */
+    }
+
+    .auth-main {
+        padding-top: 0;
+    }
+
+    .account-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .progress {
+        grid-template-columns: 1fr;
     }
 }

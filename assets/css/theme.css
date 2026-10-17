@@ -60,6 +60,8 @@
     /* 32  section headings                */
     --fs-page-title: 2.5rem;
     /* 40  page titles (32 on mobile)       */
+    --fs-display: 3.5rem;
+    /* 56  login / register panel title    */
     --fs-2xl: 3rem;
     /* 48                                  */
     --fs-hero: clamp(2.75rem, 7vw, 4.5rem);
