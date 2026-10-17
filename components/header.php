@@ -12,6 +12,7 @@ require_once __DIR__ . '/../config/app.php';
 
 $documentTitle = isset($pageTitle) ? $pageTitle . ' | ' . APP_NAME : APP_NAME;
 $currentPage   = basename($_SERVER['SCRIPT_NAME']);
+$accountUrl    = url(is_logged_in() ? 'account.php' : 'login.php');
 
 $navLinks = [
     'Shop'        => 'shop.php',
@@ -26,6 +27,9 @@ $navLinks = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($documentTitle) ?></title>
+    <?php if (!empty($noReferrer)): ?>
+    <meta name="referrer" content="no-referrer">
+    <?php endif; ?>
     <?php if (!empty($pageDescription)): ?>
     <meta name="description" content="<?= e($pageDescription) ?>">
     <?php endif; ?>
@@ -54,14 +58,14 @@ $navLinks = [
                     <a class="btn btn--ghost" href="<?= url('shop.php') ?>#search">Search</a>
                 </li>
                 <li class="nav-mobile-only">
-                    <a class="btn btn--ghost" href="<?= url('login.php') ?>">Account</a>
+                    <a class="btn btn--ghost" href="<?= $accountUrl ?>">Account</a>
                 </li>
             </ul>
         </nav>
 
         <div class="header-actions">
             <a class="btn btn--outline header-search" href="<?= url('shop.php') ?>#search">Search</a>
-            <a class="btn btn--ghost header-account" href="<?= url('login.php') ?>">Account</a>
+            <a class="btn btn--ghost header-account" href="<?= $accountUrl ?>">Account</a>
             <a class="btn btn--outline header-bag" href="<?= url('cart.php') ?>">Bag <span class="bag-count"><span class="bag-paren">(</span><span data-cart-count><?= cart_count() ?></span><span class="bag-paren">)</span></span></a>
             <button type="button" class="btn btn--ghost nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
                 <svg class="icon-open" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
