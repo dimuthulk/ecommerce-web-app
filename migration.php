@@ -1,7 +1,16 @@
 <?php
+/**
+ * migration.php — runs database/migrations.sql on the correct database.
+ *
+ * Local  : php migration.php            (CLI)   or  http://localhost/.../migration.php
+ * Remote : https://your-site.com/migration.php?key=YOUR_SECRET_KEY
+ *
+ * Remote secret: add this line to config/database.remote.php (the file that is NOT in git):
+ *     define('MIGRATION_SECRET', 'long-random-string');
+ */
 
-const CONFIG_LOCAL  = __DIR__ . '/config/database.local.php';
-const CONFIG_REMOTE = __DIR__ . '/config/database.remote.php';
+const CONFIG_LOCAL  = __DIR__ . '/config/database.local.php';  // defines $pdo (ecommerce_web_app)
+const CONFIG_REMOTE = __DIR__ . '/config/database.remote.php'; // defines $pdo (if0_43161606_ecommerce_web_app)
 const SQL_FILE      = __DIR__ . '/database/migrations.sql';
 
 // ───── 1. Local or remote? ─────
@@ -58,6 +67,28 @@ try {
             echo "✔ Table ready: {$m[1]}\n";
         }
     }
+    // CREATE TABLE IF NOT EXISTS does not change a table that already exists,
+    // so new columns are added here when they are missing (works on MySQL and MariaDB).
+    $newColumns = [
+        ['users', 'reset_token_hash', 'VARCHAR(64) NULL DEFAULT NULL'],
+        ['users', 'reset_expires_at', 'DATETIME NULL DEFAULT NULL'],
+        ['users', 'failed_logins',    'TINYINT UNSIGNED NOT NULL DEFAULT 0'],
+        ['users', 'locked_until',     'DATETIME NULL DEFAULT NULL'],
+    ];
+    $exists = $pdo->prepare('SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?');
+    foreach ($newColumns as [$table, $column, $definition]) {
+        $exists->execute([$table, $column]);
+        if ((int) $exists->fetchColumn() === 0) {
+            $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` $definition");
+            echo "✔ Column added: $table.$column\n";
+        }
+    }
+    $hasIndex = $pdo->query("SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND INDEX_NAME = 'idx_users_reset_token'")->fetchColumn();
+    if ((int) $hasIndex === 0) {
+        $pdo->exec('CREATE INDEX idx_users_reset_token ON users (reset_token_hash)');
+        echo "✔ Index added: users.idx_users_reset_token\n";
+    }
+
     echo "\nMigration finished. $ok statement(s) executed.\n";
 } catch (PDOException $e) {
     echo "\n✘ Migration failed: " . $e->getMessage() . "\n";

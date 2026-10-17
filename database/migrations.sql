@@ -18,8 +18,14 @@ CREATE TABLE IF NOT EXISTS users (
   postal_code   VARCHAR(20),
   country       VARCHAR(100) DEFAULT 'Sri Lanka',
   is_active     TINYINT(1) NOT NULL DEFAULT 1,
+  -- account security: password reset link (token stored as a SHA-256 hash) and login lock
+  reset_token_hash  VARCHAR(64) NULL DEFAULT NULL,
+  reset_expires_at  DATETIME NULL DEFAULT NULL,
+  failed_logins     TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  locked_until      DATETIME NULL DEFAULT NULL,
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_users_reset_token (reset_token_hash)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. PRODUCTS
