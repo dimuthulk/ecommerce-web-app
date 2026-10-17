@@ -74,8 +74,3 @@ function cart_clear(): void
     unset($_SESSION['cart']);
 }
 
-/** "1 item" / "3 items" */
-function items_label(int $count): string
-{
-    return $count . ' item' . ($count === 1 ? '' : 's');
-}
