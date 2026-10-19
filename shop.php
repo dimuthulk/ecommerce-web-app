@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/config/app.php';
 
-// Sample products for now (data/products.php). Swap for a database query later.
-$allProducts = require __DIR__ . '/data/products.php';
+// Products come from the database (all_products() in config/app.php)
+$allProducts = all_products();
 
 /* ---------- 1. Read + sanitise the query string ---------- */
 $readList = static function (string $key): array {

@@ -2,8 +2,8 @@
 $pageDescription = 'Everyday clothing. Considered essentials for the way you move.';
 require_once __DIR__ . '/components/header.php';
 
-// Sample products for now (data/products.php). Swap for a database query later.
-$products   = require __DIR__ . '/data/products.php';
+// Products come from the database (all_products() in config/app.php)
+$products   = all_products();
 $featured   = array_slice($products, 0, 6);
 $essentials = array_slice($products, 0, 3);
 

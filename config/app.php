@@ -168,12 +168,42 @@ function csrf_valid(): bool
    Data + database helpers
    ========================================================================== */
 
-/** All products. Sample data for now (data/products.php); later: SELECT from the products table. */
+/**
+ * All active products from the `products` table, in the same shape the pages already use:
+ *   colors -> list, stock -> [ colour => [ size => qty ] ], images -> list, prices -> numbers.
+ * Cached for the request. (data/products.php is only the sample data used by `migration.php seed`.)
+ */
 function all_products(): array
 {
     static $products = null;
+
     if ($products === null) {
-        $products = require __DIR__ . '/../data/products.php';
+        $products = [];
+        $rows = db()->query('SELECT * FROM products WHERE is_active = 1 ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($rows as $row) {
+            $stock  = json_decode((string) $row['stock'], true);
+            $stock  = is_array($stock) ? $stock : [];
+            $colors = json_decode((string) $row['colors'], true);
+            $images = json_decode((string) $row['images'], true);
+            $sale   = $row['sale_price'] !== null ? (float) $row['sale_price'] : 0.0;
+
+            $products[] = [
+                'id'          => (int) $row['id'],
+                'sku'         => $row['sku'],
+                'slug'        => $row['slug'],
+                'name'        => $row['name'],
+                'category'    => $row['category'],
+                'gender'      => $row['gender'],
+                'material'    => $row['material'],
+                'description' => $row['description'],
+                'price'       => (float) $row['price'],
+                'sale_price'  => $sale > 0 ? $sale : null,
+                'colors'      => is_array($colors) && $colors ? array_values($colors) : array_keys($stock),
+                'stock'       => $stock,
+                'images'      => is_array($images) ? array_values($images) : [],
+            ];
+        }
     }
     return $products;
 }
