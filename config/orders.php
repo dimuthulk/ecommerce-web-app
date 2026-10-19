@@ -1,6 +1,11 @@
 <?php
 /** Orders: save a new order and load one back. Uses the `orders` and `order_items` tables. */
 
+/** Thrown when an item sold out between "Add to bag" and "Place order". */
+class OutOfStockException extends RuntimeException
+{
+}
+
 /**
  * Save an order and its items in one transaction.
  *
@@ -15,6 +20,29 @@ function create_order(array $customer, array $lines, array $totals): array
     $pdo->beginTransaction();
 
     try {
+        // 1) Take the stock first. Each product row is locked while we check and reduce it, so two
+        //    customers can never buy the last item at the same time. Locking in id order avoids deadlocks.
+        $byProduct = $lines;
+        usort($byProduct, static fn ($a, $b) => $a['product']['id'] <=> $b['product']['id']);
+
+        $read   = $pdo->prepare('SELECT stock FROM products WHERE id = ? AND is_active = 1 FOR UPDATE');
+        $update = $pdo->prepare('UPDATE products SET stock = ? WHERE id = ?');
+
+        foreach ($byProduct as $line) {
+            $productId = (int) $line['product']['id'];
+            $read->execute([$productId]);
+            $json  = $read->fetchColumn();
+            $stock = $json !== false ? json_decode((string) $json, true) : null;
+            $have  = is_array($stock) ? (int) ($stock[$line['color']][$line['size']] ?? 0) : 0;
+
+            if ($have < $line['qty']) {
+                throw new OutOfStockException($line['product']['name'] . ' (' . $line['color'] . ' / ' . $line['size'] . ')');
+            }
+            $stock[$line['color']][$line['size']] = $have - $line['qty'];
+            $update->execute([json_encode($stock, JSON_UNESCAPED_UNICODE), $productId]);
+        }
+
+        // 2) The order itself
         $stmt = $pdo->prepare(
             'INSERT INTO orders
                 (order_number, user_id, status, subtotal, discount_amount, shipping_fee, total_amount,
@@ -47,15 +75,15 @@ function create_order(array $customer, array $lines, array $totals): array
         $number = 'CB-' . (1000 + $id);                            // CB-1001, CB-1002 ...
         $pdo->prepare('UPDATE orders SET order_number = ? WHERE id = ?')->execute([$number, $id]);
 
-        // product_id stays NULL while products live in data/products.php (the products table is still empty).
         $item = $pdo->prepare(
             'INSERT INTO order_items
                 (order_id, product_id, product_name, sku, size, color, unit_price, quantity, line_total)
-             VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)'
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         foreach ($lines as $line) {
             $item->execute([
                 $id,
+                (int) $line['product']['id'],
                 $line['product']['name'],
                 $line['product']['sku'] . '-' . $line['color'] . '-' . $line['size'],
                 $line['size'],

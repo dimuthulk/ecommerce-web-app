@@ -83,6 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             cart_clear();
             $_SESSION['last_order_id'] = $order['id'];
             redirect(url('order-confirmation.php'));
+        } catch (OutOfStockException $e) {
+            toast('Sorry, an item just sold out', 'error', ['text' => $e->getMessage() . ' is no longer available in that quantity.']);
+            redirect(url('cart.php'));
         } catch (Throwable $e) {
             error_log('Order failed: ' . $e->getMessage());
             $errors['form'] = 'We could not place your order. Please try again in a moment.';
