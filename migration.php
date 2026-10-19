@@ -89,6 +89,31 @@ try {
         echo "✔ Index added: users.idx_users_reset_token\n";
     }
 
+    // Sample products (from data/products.php) are only added when you ask for them:
+    //   php migration.php seed          or          /migration?key=...&seed=1
+    // Products that already exist (same id/sku) are left alone, so edits are never overwritten.
+    $wantsSeed = $isCli ? in_array('seed', $argv ?? [], true) : (($_GET['seed'] ?? '') === '1');
+    if ($wantsSeed) {
+        $samples = require __DIR__ . '/data/products.php';
+        $insert  = $pdo->prepare(
+            'INSERT IGNORE INTO products
+                (id, sku, name, slug, category, gender, price, sale_price, colors, stock, images, is_featured, is_active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)'
+        );
+        $added = 0;
+        foreach ($samples as $s) {
+            $insert->execute([
+                $s['id'], $s['sku'], $s['name'], $s['slug'], $s['category'], $s['gender'],
+                $s['price'], $s['sale_price'],
+                json_encode(array_keys($s['stock'])), json_encode($s['stock']), json_encode($s['images']),
+            ]);
+            $added += $insert->rowCount();
+        }
+        echo "✔ Sample products: $added added, " . (count($samples) - $added) . " already there\n";
+    } elseif ((int) $pdo->query('SELECT COUNT(*) FROM products')->fetchColumn() === 0) {
+        echo "ℹ The products table is empty. Run again with \"seed\" to add the sample products.\n";
+    }
+
     echo "\nMigration finished. $ok statement(s) executed.\n";
 } catch (PDOException $e) {
     echo "\n✘ Migration failed: " . $e->getMessage() . "\n";
