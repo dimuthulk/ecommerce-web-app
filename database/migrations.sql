@@ -99,3 +99,18 @@ CREATE TABLE IF NOT EXISTS order_items (
   CONSTRAINT fk_items_order   FOREIGN KEY (order_id)   REFERENCES orders(id)   ON DELETE CASCADE,
   CONSTRAINT fk_items_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. CONTACT_MESSAGES (messages sent from the Contact page)
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT UNSIGNED NULL,
+  name       VARCHAR(160) NOT NULL,
+  email      VARCHAR(190) NOT NULL,
+  order_ref  VARCHAR(30)  NULL,
+  message    TEXT NOT NULL,
+  ip_hash    CHAR(64)     NOT NULL,          -- hashed address, only used to limit spam
+  status     ENUM('new','read','replied') NOT NULL DEFAULT 'new',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_contact_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_contact_ip (ip_hash, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

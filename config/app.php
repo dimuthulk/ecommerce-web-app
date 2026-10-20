@@ -102,6 +102,10 @@ define('DELIVERY_FEE', 350);   // sample flat delivery fee in LKR (cash on deliv
 // "Order email" notice on the confirmation page stays hidden, so we never promise an email we don't send.
 define('ORDER_EMAILS_ENABLED', false);
 
+// Store contact details shown on the Contact page and the policy pages. Leave empty until the client approves them.
+define('STORE_SUPPORT_EMAIL', '');     // e.g. 'support@yourstore.lk'
+define('STORE_SUPPORT_PHONE', '');     // e.g. '+94 11 000 0000'
+
 // E-mail sending (password reset links ...). While false, mails are only written to storage/mail.log
 // and the live site tells visitors that reset-by-email is not available yet.
 define('MAIL_ENABLED', false);
@@ -294,4 +298,11 @@ function is_logged_in(): bool
 function items_label(int $count): string
 {
     return $count . ' item' . ($count === 1 ? '' : 's');
+}
+
+
+/** "Delivery charges" -> "delivery-charges" (anchor ids) */
+function slugify(string $text): string
+{
+    return trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($text)), '-');
 }
