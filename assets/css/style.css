@@ -1350,7 +1350,7 @@ a.page-link:hover {
     color: var(--color-ink);
 }
 
-.form-card a {
+.form-card a:not(.btn) {
     color: var(--color-accent);
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -1802,6 +1802,199 @@ a.page-link:hover {
     margin-top: var(--space-5);
     padding-top: var(--space-5);
     border-top: var(--border);
+}
+
+/* ==========================================================================
+   About, contact, policy pages, 404
+   ========================================================================== */
+.hp {
+    /* spam trap: off screen, not display:none */
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* about */
+.about-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-7);
+    align-items: center;
+    margin-top: var(--space-6);
+}
+
+.about-hero h1 {
+    margin-top: var(--space-4);
+    font-size: clamp(2.5rem, 8vw, 4rem);
+}
+
+.about-hero__lead {
+    margin-block: var(--space-6) var(--space-6);
+    color: var(--color-ink);
+}
+
+.about-hero .placeholder--hero {
+    min-height: 30rem;
+}
+
+.about-values {
+    margin-top: var(--space-7);
+    padding-top: var(--space-6);
+    border-top: var(--border);
+}
+
+.about-values__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+    margin-top: var(--space-5);
+}
+
+.about-values h3 {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-base);
+}
+
+.about-values p {
+    margin-top: var(--space-2);
+    font-size: var(--fs-sm);
+}
+
+/* contact */
+.contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 22.5rem;
+    gap: var(--space-6);
+    align-items: start;
+    margin-top: var(--space-5);
+}
+
+.contact-aside {
+    display: grid;
+    gap: var(--space-5);
+}
+
+.contact-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.contact-credit {
+    margin-top: var(--space-5);
+}
+
+.detail-line a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* policy pages */
+.policy-notice {
+    margin-top: var(--space-5);
+}
+
+.policy-layout {
+    display: grid;
+    grid-template-columns: 15rem 1fr;
+    column-gap: var(--space-6);
+    align-items: start;
+    margin-top: var(--space-5);
+}
+
+.policy-nav h2 {
+    font-size: var(--fs-base);
+    line-height: var(--lh-base);
+}
+
+.policy-nav ul {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.policy-nav .btn {
+    width: 100%;
+    height: auto;
+    min-height: var(--control-h);
+    padding-block: var(--space-2);
+    white-space: normal;
+    text-align: center;
+}
+
+.policy-meta {
+    margin-top: var(--space-4);
+    font-size: var(--fs-xs);
+}
+
+.policy-sections {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.policy-section {
+    scroll-margin-top: calc(var(--header-h) + var(--space-4));
+}
+
+.policy-section h2 {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-base);
+}
+
+.policy-section p {
+    margin-top: var(--space-3);
+}
+
+.policy-flag {
+    display: block;
+    margin-top: var(--space-3);
+    font-size: var(--fs-xs);
+    color: var(--color-accent);
+}
+
+.policy-button {
+    margin-top: var(--space-4);
+}
+
+/* 404 */
+.not-found {
+    padding-top: var(--space-7);
+    text-align: center;
+}
+
+.not-found__code {
+    font-size: clamp(6rem, 22vw, 10rem);
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    color: var(--color-accent-bright);
+}
+
+.not-found h1 {
+    margin-top: var(--space-6);
+    font-size: var(--fs-xl);
+}
+
+.not-found p:not(.not-found__code) {
+    margin-top: var(--space-4);
+}
+
+.not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+}
+
+.not-found__search {
+    margin-top: var(--space-6);
 }
 
 /* ==========================================================================
@@ -2283,5 +2476,38 @@ a.page-link:hover {
 @media (max-width: 560px) {
     .progress {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   About, contact, policy pages — responsive
+   ========================================================================== */
+@media (max-width: 1024px) {
+
+    .about-hero,
+    .contact-layout,
+    .policy-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .about-hero__media {
+        margin-top: var(--space-6);
+    }
+
+    .about-hero .placeholder--hero {
+        min-height: 22rem;
+    }
+
+    .about-values__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .policy-nav {
+        margin-bottom: var(--space-5);
+    }
+
+    .policy-nav .btn {
+        justify-content: flex-start;
+        text-align: left;
     }
 }

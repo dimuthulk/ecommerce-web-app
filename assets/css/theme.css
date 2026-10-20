@@ -29,6 +29,8 @@
     /* "Pending" status text               */
 
     /* Not in the design: derived states, change if the designer defines them */
+    --color-accent-bright: #fe4536;
+    /* the big 404 number          */
     --color-accent-hover: #b32a20;
     --color-focus: #10111e;
 
