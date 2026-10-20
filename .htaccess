@@ -2,7 +2,7 @@ RewriteEngine On
 
 # ---------- 1) Block direct browser access to internal folders ----------
 # (PHP includes still work; only HTTP requests are blocked.)
-RewriteRule ^(config|database|data|components|storage)(/|$) - [R=404,L]
+RewriteRule ^(config|database|data|components|storage)(/|$) 404.php [L]
 
 # FTP-Deploy-Action's sync state file
 <Files ".ftp-deploy-sync-state.json">
@@ -29,3 +29,10 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^(.+?)/?$ $1.php [L]
+
+# Anything else that is not a real file or folder -> the styled 404 page
+# (missing images, CSS and scripts still get the plain server 404)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !\.(css|js|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf)$ [NC]
+RewriteRule ^ 404.php [L]
