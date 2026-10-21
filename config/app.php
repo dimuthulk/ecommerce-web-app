@@ -98,18 +98,15 @@ function image_placeholder(string $caption = '', bool $icon = true, string $vari
 
 define('DELIVERY_FEE', 350);   // sample flat delivery fee in LKR (cash on delivery)
 
-// Set to true once order emails are really sent (PHPMailer + SMTP). Until then the
-// "Order email" notice on the confirmation page stays hidden, so we never promise an email we don't send.
-define('ORDER_EMAILS_ENABLED', false);
-
 // Store contact details shown on the Contact page and the policy pages. Leave empty until the client approves them.
-define('STORE_SUPPORT_EMAIL', '');     // e.g. 'support@yourstore.lk'
+define('STORE_SUPPORT_EMAIL', 'info.dimuthulk@gmail.com');     // e.g. 'support@yourstore.lk'
 define('STORE_SUPPORT_PHONE', '');     // e.g. '+94 11 000 0000'
 
-// E-mail sending (password reset links ...). While false, mails are only written to storage/mail.log
-// and the live site tells visitors that reset-by-email is not available yet.
-define('MAIL_ENABLED', false);
-define('MAIL_FROM', 'no-reply@example.com');
+// E-mail is switched on by creating config/mail.local.php (on localhost) or config/mail.remote.php
+// (live site). See config/mail.example.php. Without that file nothing is sent: messages are only
+// written to storage/mail.log, and the live site says that reset-by-email is not available.
+define('MAIL_ENABLED', is_file(__DIR__ . '/' . (IS_LOCAL ? 'mail.local.php' : 'mail.remote.php')));
+define('ORDER_EMAILS_ENABLED', MAIL_ENABLED);      // order confirmation e-mails + the notice on the confirmation page
 
 /** Friendly product URL:  /product/essential-cotton-tee */
 function product_url(string $slug): string

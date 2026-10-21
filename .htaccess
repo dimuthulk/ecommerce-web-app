@@ -2,7 +2,7 @@ RewriteEngine On
 
 # ---------- 1) Block direct browser access to internal folders ----------
 # (PHP includes still work; only HTTP requests are blocked.)
-RewriteRule ^(config|database|data|components|storage)(/|$) 404.php [L]
+RewriteRule ^(config|database|data|components|storage|vendor)(/|$) 404.php [L]
 
 # FTP-Deploy-Action's sync state file
 <Files ".ftp-deploy-sync-state.json">
