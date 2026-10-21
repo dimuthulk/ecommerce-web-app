@@ -211,7 +211,7 @@ function request_password_reset(string $email): array
         . RESET_TOKEN_MINUTES . " minutes:\n\n$link\n\nIf you did not ask for this, you can ignore this message.\n\n" . APP_NAME
     );
 
-    return ['available' => true, 'link' => IS_LOCAL ? $link : null];
+    return ['available' => true, 'link' => (IS_LOCAL && !MAIL_ENABLED) ? $link : null];
 }
 
 /** The user a (still valid) reset token belongs to, or null. */
