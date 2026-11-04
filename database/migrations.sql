@@ -114,3 +114,34 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   CONSTRAINT fk_contact_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
   INDEX idx_contact_ip (ip_hash, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. CATEGORIES (managed in the admin Categories page; products.category holds the category name)
+CREATE TABLE IF NOT EXISTS categories (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name        VARCHAR(80)  NOT NULL UNIQUE,
+  slug        VARCHAR(100) NOT NULL UNIQUE,
+  description TEXT NULL,
+  is_visible  TINYINT(1) NOT NULL DEFAULT 1,
+  sort_order  INT NOT NULL DEFAULT 0,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. SETTINGS (store name, delivery fee, contact details ... edited in the admin Settings page)
+CREATE TABLE IF NOT EXISTS settings (
+  setting_key   VARCHAR(60) PRIMARY KEY,
+  setting_value TEXT NULL,
+  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. ORDER_STATUS_HISTORY (every status change of an order)
+CREATE TABLE IF NOT EXISTS order_status_history (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  order_id   INT UNSIGNED NOT NULL,
+  status     VARCHAR(20)  NOT NULL,
+  note       VARCHAR(255) NULL,
+  changed_by INT UNSIGNED NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_history_order FOREIGN KEY (order_id)   REFERENCES orders(id) ON DELETE CASCADE,
+  CONSTRAINT fk_history_user  FOREIGN KEY (changed_by) REFERENCES users(id)  ON DELETE SET NULL,
+  INDEX idx_history_order (order_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
