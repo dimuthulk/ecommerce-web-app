@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/auth.php';
+require_once __DIR__ . '/src/auth.php';
 
 $old    = ['name' => '', 'email' => '', 'order_ref' => '', 'message' => ''];
 $errors = [];
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|contact|' . APP_NAME);
+            $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|contact|' . app_name());
             $recent = db()->prepare('SELECT COUNT(*) FROM contact_messages WHERE ip_hash = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)');
             $recent->execute([$ipHash]);
 
@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $old['order_ref'] !== '' ? $old['order_ref'] : null, $old['message'], $ipHash,
                 ]);
 
-                if (STORE_SUPPORT_EMAIL !== '') {          // best effort; always noted in storage/mail.log
-                    send_mail(STORE_SUPPORT_EMAIL, 'New message from ' . $old['name'],
+                if (support_email() !== '') {          // best effort; always noted in storage/mail.log
+                    send_mail(support_email(), 'New message from ' . $old['name'],
                         "From: {$old['name']} <{$old['email']}>\nOrder: " . ($old['order_ref'] ?: '-') . "\n\n{$old['message']}");
                 }
 
@@ -140,9 +140,9 @@ require_once __DIR__ . '/components/header.php';
         <aside class="contact-aside">
             <section class="card form-card" aria-labelledby="support-title">
                 <h2 id="support-title">Customer support</h2>
-                <?php if (STORE_SUPPORT_EMAIL !== '' || STORE_SUPPORT_PHONE !== ''): ?>
-                    <?php if (STORE_SUPPORT_EMAIL !== ''): ?><p class="detail-line"><a href="mailto:<?= e(STORE_SUPPORT_EMAIL) ?>"><?= e(STORE_SUPPORT_EMAIL) ?></a></p><?php endif; ?>
-                    <?php if (STORE_SUPPORT_PHONE !== ''): ?><p class="detail-line"><?= e(STORE_SUPPORT_PHONE) ?></p><?php endif; ?>
+                <?php if (support_email() !== '' || support_phone() !== ''): ?>
+                    <?php if (support_email() !== ''): ?><p class="detail-line"><a href="mailto:<?= e(support_email()) ?>"><?= e(support_email()) ?></a></p><?php endif; ?>
+                    <?php if (support_phone() !== ''): ?><p class="detail-line"><?= e(support_phone()) ?></p><?php endif; ?>
                 <?php else: ?>
                     <p class="form-card__text">Use the form and the store will get back to you.</p>
                 <?php endif; ?>

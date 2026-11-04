@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/config/app.php';
 
-// Sample products for now (data/products.php). Swap for a database query later.
-$allProducts = require __DIR__ . '/data/products.php';
+// Products come from the database (all_products() in config/app.php)
+$allProducts = all_products();
 
 /* ---------- 1. Find the product (URL: /product/essential-cotton-tee) ---------- */
 $slug    = (isset($_GET['slug']) && is_string($_GET['slug'])) ? $_GET['slug'] : '';
@@ -220,7 +220,7 @@ require_once __DIR__ . '/components/header.php';
                     <button type="submit" class="btn btn--primary" data-add<?= $available > 0 ? '' : ' disabled' ?>>Add to bag</button>
                 </div>
 
-                <p class="delivery-note">Cash on delivery &middot; delivery fee <?= e(format_price(DELIVERY_FEE)) ?></p>
+                <p class="delivery-note">Cash on delivery &middot; delivery fee <?= e(format_price(delivery_fee())) ?></p>
 
                 <?php if ($formError): ?>
                     <p class="form-status form-status--error" role="alert"><?= e($formError) ?></p>

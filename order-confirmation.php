@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/cart.php';
-require_once __DIR__ . '/config/orders.php';
+require_once __DIR__ . '/src/cart.php';
+require_once __DIR__ . '/src/orders.php';
 
 // Only the order that was just placed in this session can be shown
 $orderId = (int) ($_SESSION['last_order_id'] ?? 0);

@@ -24,7 +24,7 @@ $values = [
 
     <section class="about-hero">
         <div class="about-hero__copy">
-            <p class="eyebrow">About <?= e(APP_NAME) ?></p>
+            <p class="eyebrow">About <?= e(app_name()) ?></p>
             <h1>The everyday,<br>considered.</h1>
             <p class="about-hero__lead">We’re building a wardrobe around simple, wearable pieces. Clean silhouettes, an easy palette and room to make them your own.</p>
             <a class="btn btn--primary" href="<?= url('shop.php') ?>">Explore the collection</a>

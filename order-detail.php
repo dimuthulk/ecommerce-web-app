@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/auth.php';
-require_once __DIR__ . '/config/orders.php';
+require_once __DIR__ . '/src/auth.php';
+require_once __DIR__ . '/src/orders.php';
 header('Cache-Control: no-store');
 
 $number = (isset($_GET['number']) && is_string($_GET['number']) && preg_match('/^[A-Za-z0-9-]{1,30}$/', $_GET['number'])) ? $_GET['number'] : '';
@@ -58,11 +58,13 @@ $statusNotes = [
     'cancelled'  => 'Order cancelled.',
     'refunded'   => 'Order refunded.',
 ];
-$history = [['at' => $order['created_at'], 'label' => 'Pending', 'note' => 'Order received; awaiting store confirmation.']];
-if ($order['status'] !== 'pending') {
-    $history[] = ['at' => $order['updated_at'], 'label' => ucfirst($order['status']), 'note' => $statusNotes[$order['status']] ?? ''];
+$history = [];
+foreach (order_history((int) $order['id']) as $row) {                  // newest first
+    $history[] = ['at' => $row['created_at'], 'label' => ucfirst($row['status']), 'note' => (string) $row['note']];
 }
-$history = array_reverse($history);      // newest first
+if (!$history) {                                                         // orders from before the history table existed
+    $history[] = ['at' => $order['created_at'], 'label' => 'Pending', 'note' => 'Order received; awaiting store confirmation.'];
+}
 
 $address = implode(', ', array_filter([$order['ship_line1'], $order['ship_line2']]))
          . ', ' . trim($order['ship_city'] . ' ' . $order['ship_postal_code']);

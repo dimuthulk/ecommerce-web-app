@@ -74,6 +74,7 @@ try {
         ['users', 'reset_expires_at', 'DATETIME NULL DEFAULT NULL'],
         ['users', 'failed_logins',    'TINYINT UNSIGNED NOT NULL DEFAULT 0'],
         ['users', 'locked_until',     'DATETIME NULL DEFAULT NULL'],
+        ['products', 'image_alt',     'VARCHAR(190) NULL DEFAULT NULL'],
     ];
     $exists = $pdo->prepare('SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?');
     foreach ($newColumns as [$table, $column, $definition]) {
@@ -87,6 +88,29 @@ try {
     if ((int) $hasIndex === 0) {
         $pdo->exec('CREATE INDEX idx_users_reset_token ON users (reset_token_hash)');
         echo "✔ Index added: users.idx_users_reset_token\n";
+    }
+
+    // Categories: make sure every category that products already use exists in the categories table
+    $used = $pdo->query("SELECT DISTINCT category FROM products WHERE category <> ''")->fetchAll(PDO::FETCH_COLUMN);
+    $addCategory = $pdo->prepare('INSERT IGNORE INTO categories (name, slug) VALUES (?, ?)');
+    $newCategories = 0;
+    foreach ($used as $name) {
+        $slug = trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($name)), '-');
+        $addCategory->execute([$name, $slug !== '' ? $slug : 'category']);
+        $newCategories += $addCategory->rowCount();
+    }
+    if ($newCategories > 0) {
+        echo "✔ Categories added from products: $newCategories\n";
+    }
+
+    // Orders placed before the status history existed get a first history entry
+    $backfilled = $pdo->exec(
+        "INSERT INTO order_status_history (order_id, status, note, created_at)
+         SELECT o.id, o.status, 'Order received; awaiting store confirmation.', o.created_at
+         FROM orders o WHERE NOT EXISTS (SELECT 1 FROM order_status_history h WHERE h.order_id = o.id)"
+    );
+    if ($backfilled) {
+        echo "✔ Status history created for $backfilled existing order(s)\n";
     }
 
     // Sample products (from data/products.php) are only added when you ask for them:
@@ -110,6 +134,10 @@ try {
             $added += $insert->rowCount();
         }
         echo "✔ Sample products: $added added, " . (count($samples) - $added) . " already there\n";
+        foreach ($samples as $s) {
+            $slug = trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($s['category'])), '-');
+            $addCategory->execute([$s['category'], $slug]);
+        }
     } elseif ((int) $pdo->query('SELECT COUNT(*) FROM products')->fetchColumn() === 0) {
         echo "ℹ The products table is empty. Run again with \"seed\" to add the sample products.\n";
     }

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/auth.php';
+require_once __DIR__ . '/src/auth.php';
 header('Cache-Control: no-store');
 header('Referrer-Policy: no-referrer');          // the secret token is in the address
 

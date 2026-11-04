@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/cart.php';
+require_once __DIR__ . '/src/cart.php';
 
 /* ---------- 1. Change the bag (POST) ---------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -97,7 +97,7 @@ $promos = [
 <section class="container section">
     <div class="brand-strip">
         <h2 class="card-title">Good style starts simply.</h2>
-        <p>Meet <?= e(APP_NAME) ?> and the thinking behind our everyday collection.</p>
+        <p>Meet <?= e(app_name()) ?> and the thinking behind our everyday collection.</p>
         <a class="btn btn--ghost" href="<?= url('about.php') ?>">About the brand</a>
     </div>
 </section>

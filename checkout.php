@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/cart.php';
-require_once __DIR__ . '/config/orders.php';
-require_once __DIR__ . '/config/auth.php';
+require_once __DIR__ . '/src/cart.php';
+require_once __DIR__ . '/src/orders.php';
+require_once __DIR__ . '/src/auth.php';
 
 /* ---------- 1. The bag must have orderable items ---------- */
 $lines = cart_lines();
@@ -79,10 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $order = create_order($old, $lines, $totals);
-            cart_clear();
-            $_SESSION['last_order_id'] = $order['id'];
+            place_order_from_cart($old);
             redirect(url('order-confirmation.php'));
+        } catch (EmptyCartException | CartChangedException $e) {
+            toast('Please review your bag', 'error', ['text' => $e->getMessage()]);
+            redirect(url('cart.php'));
         } catch (OutOfStockException $e) {
             toast('Sorry, an item just sold out', 'error', ['text' => $e->getMessage() . ' is no longer available in that quantity.']);
             redirect(url('cart.php'));

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/auth.php';
-require_once __DIR__ . '/config/orders.php';
+require_once __DIR__ . '/src/auth.php';
+require_once __DIR__ . '/src/orders.php';
 header('Cache-Control: no-store');
 
 $user   = require_login();
