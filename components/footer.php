@@ -23,7 +23,7 @@ $footerLinks = [
     <footer class="site-footer">
         <div class="container footer-grid">
             <div class="footer-brand">
-                <p class="footer-logo"><?= e(APP_NAME) ?></p>
+                <p class="footer-logo"><?= e(app_name()) ?></p>
                 <p><?= e(APP_TAGLINE) ?></p>
             </div>
 
@@ -41,7 +41,7 @@ $footerLinks = [
 
         <div class="container">
             <div class="footer-bottom">
-                <p>&copy; <?= date('Y') ?> <?= e(APP_NAME) ?></p>
+                <p>&copy; <?= date('Y') ?> <?= e(app_name()) ?></p>
                 <p>Website development by Gdoop Platforms</p>
             </div>
         </div>

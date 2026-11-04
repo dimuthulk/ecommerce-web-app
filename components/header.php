@@ -10,7 +10,7 @@
  */
 require_once __DIR__ . '/../config/app.php';
 
-$documentTitle = isset($pageTitle) ? $pageTitle . ' | ' . APP_NAME : APP_NAME;
+$documentTitle = isset($pageTitle) ? $pageTitle . ' | ' . app_name() : app_name();
 $currentPage   = basename($_SERVER['SCRIPT_NAME']);
 $accountUrl    = url(is_logged_in() ? 'account.php' : 'login.php');
 
@@ -27,6 +27,7 @@ $navLinks = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($documentTitle) ?></title>
+    <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <?php if (!empty($noReferrer)): ?>
     <meta name="referrer" content="no-referrer">
     <?php endif; ?>
@@ -45,7 +46,7 @@ $navLinks = [
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">
-        <a class="site-logo" href="<?= url('/') ?>"><?= e(APP_NAME) ?></a>
+        <a class="site-logo" href="<?= url('/') ?>"><?= e(app_name()) ?></a>
 
         <nav class="site-nav" id="site-nav" aria-label="Main">
             <ul>

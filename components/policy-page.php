@@ -16,7 +16,7 @@ if ($policy === null) {
 $pageTitle = $policy['title'];
 require_once __DIR__ . '/header.php';
 
-$contactLine = trim(implode(' · ', array_filter([STORE_SUPPORT_EMAIL, STORE_SUPPORT_PHONE])));
+$contactLine = trim(implode(' · ', array_filter([support_email(), support_phone()])));
 ?>
 
 <div class="container page-top">

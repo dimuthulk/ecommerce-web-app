@@ -3,5 +3,5 @@
     <p class="eyebrow">Your everyday, in one place</p>
     <p class="auth-panel__title">Good style.<br>Simply managed.</p>
     <p class="auth-panel__text">Save your profile, review your orders and find your next everyday essential.</p>
-    <p class="auth-panel__brand"><?= e(APP_NAME) ?></p>
+    <p class="auth-panel__brand"><?= e(app_name()) ?></p>
 </aside>
