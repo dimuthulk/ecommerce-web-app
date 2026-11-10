@@ -176,7 +176,7 @@ require_once __DIR__ . '/components/header.php';
             </div>
 
             <form class="purchase" id="purchase" method="post" action="<?= product_url($product['slug']) ?>"
-                  data-product-form data-stock="<?= e(json_encode($stock)) ?>">
+                  data-product-form data-api-form="add-to-bag" data-slug="<?= e($product['slug']) ?>" data-cart-url="<?= url('cart.php') ?>" data-stock="<?= e(json_encode($stock)) ?>">
                 <?= csrf_field() ?>
 
                 <fieldset class="option-group">
