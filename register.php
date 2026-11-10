@@ -85,7 +85,7 @@ require_once __DIR__ . '/components/header.php';
                 <p class="alert alert--error" role="alert"><?= e($errors['form']) ?></p>
             <?php endif; ?>
 
-            <form class="auth-form" method="post" action="<?= url('register.php') ?>" novalidate>
+            <form class="auth-form" data-api-form="register" method="post" action="<?= url('register.php') ?>" novalidate>
                 <?= csrf_field() ?>
                 <input type="hidden" name="next" value="<?= e($next) ?>">
 
