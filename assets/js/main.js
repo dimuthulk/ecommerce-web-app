@@ -338,20 +338,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  /* ---------- Cart: quantity box saves when changed ---------- */
-  document
-    .querySelectorAll(".cart-line__controls .qty__input")
-    .forEach((input) => {
-      input.addEventListener("change", () => {
-        const form = input.form;
-        const saveButton = form.querySelector(
-          'button[name="action"][value="set"]',
-        );
-        if (form.requestSubmit) form.requestSubmit(saveButton);
-        else form.submit();
-      });
-    });
-
   /* ---------- "Search" in the header jumps to the shop search box ---------- */
   const focusSearch = () => {
     if (location.hash !== "#search") return;
