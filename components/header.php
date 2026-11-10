@@ -28,6 +28,7 @@ $navLinks = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($documentTitle) ?></title>
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
+    <meta name="api-base" content="<?= e(url('api')) ?>">
     <?php if (!empty($noReferrer)): ?>
     <meta name="referrer" content="no-referrer">
     <?php endif; ?>
