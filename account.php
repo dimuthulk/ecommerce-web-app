@@ -99,7 +99,7 @@ require_once __DIR__ . '/components/header.php';
 
         <section class="card form-card" aria-labelledby="personal-title">
             <h2 id="personal-title">Personal details</h2>
-            <form class="form-grid" method="post" action="<?= url('account.php') ?>" novalidate>
+            <form class="form-grid" data-api-form="profile" method="post" action="<?= url('account.php') ?>" novalidate>
                 <?= csrf_field() ?>
                 <input type="hidden" name="form" value="profile">
 
@@ -124,7 +124,7 @@ require_once __DIR__ . '/components/header.php';
 
         <section class="card form-card" aria-labelledby="address-title">
             <h2 id="address-title">Default delivery address</h2>
-            <form class="form-grid" method="post" action="<?= url('account.php') ?>" novalidate>
+            <form class="form-grid" data-api-form="address" method="post" action="<?= url('account.php') ?>" novalidate>
                 <?= csrf_field() ?>
                 <input type="hidden" name="form" value="address">
 
@@ -151,7 +151,7 @@ require_once __DIR__ . '/components/header.php';
         <section class="card form-card account-grid__wide" aria-labelledby="security-title">
             <h2 id="security-title">Account security</h2>
             <p class="form-card__text">Change your password with a secure reset link.</p>
-            <form method="post" action="<?= url('forgot-password.php') ?>">
+            <form data-api-form="reset-link" method="post" action="<?= url('forgot-password.php') ?>">
                 <?= csrf_field() ?>
                 <input type="hidden" name="email" value="<?= e($user['email']) ?>">
                 <button type="submit" class="btn btn--outline">Request password reset</button>
