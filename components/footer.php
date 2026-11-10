@@ -49,6 +49,8 @@ $footerLinks = [
 
     <?php include __DIR__ . '/toast.php'; ?>
 
+    <script src="<?= asset('js/api.js') ?>" defer></script>
     <script src="<?= asset('js/main.js') ?>" defer></script>
+    <script src="<?= asset('js/storefront.js') ?>" defer></script>
 </body>
 </html>
