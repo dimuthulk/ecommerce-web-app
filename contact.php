@@ -103,7 +103,7 @@ require_once __DIR__ . '/components/header.php';
 
         <section class="card form-card" aria-labelledby="message-title">
             <h2 id="message-title">Send a message</h2>
-            <form class="form-grid" method="post" action="<?= url('contact.php') ?>" novalidate>
+            <form class="form-grid" data-api-form="contact" method="post" action="<?= url('contact.php') ?>" novalidate>
                 <?= csrf_field() ?>
 
                 <div class="field">
