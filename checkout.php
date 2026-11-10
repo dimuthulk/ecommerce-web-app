@@ -127,7 +127,7 @@ require_once __DIR__ . '/components/header.php';
 
     <div class="checkout-layout">
 
-        <form class="checkout-main" method="post" action="<?= url('checkout.php') ?>" novalidate>
+        <form class="checkout-main" data-api-form="checkout" method="post" action="<?= url('checkout.php') ?>" novalidate>
             <?= csrf_field() ?>
 
             <section class="card form-card">
