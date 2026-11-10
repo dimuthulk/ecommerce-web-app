@@ -99,7 +99,7 @@ require_once __DIR__ . '/components/header.php';
                         </div>
                     </div>
 
-                    <form class="cart-line__controls" method="post" action="<?= url('cart.php') ?>" novalidate>
+                    <form class="cart-line__controls" data-api-form="cart-line" method="post" action="<?= url('cart.php') ?>" novalidate>
                         <?= csrf_field() ?>
                         <input type="hidden" name="key" value="<?= e($line['key']) ?>">
                         <!-- first submit button = what the Enter key does in the quantity box -->
