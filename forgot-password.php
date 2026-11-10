@@ -73,7 +73,7 @@ require_once __DIR__ . '/components/header.php';
                 <p class="alert alert--error" role="alert"><?= e($error) ?></p>
             <?php endif; ?>
 
-            <form class="auth-form" method="post" action="<?= url('forgot-password.php') ?>" novalidate>
+            <form class="auth-form" data-api-form="forgot" data-reset-minutes="<?= RESET_TOKEN_MINUTES ?>" data-login-url="<?= url('login.php') ?>" data-forgot-url="<?= url('forgot-password.php') ?>" method="post" action="<?= url('forgot-password.php') ?>" novalidate>
                 <?= csrf_field() ?>
 
                 <div class="field">
