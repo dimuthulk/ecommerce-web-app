@@ -245,7 +245,7 @@ function absolute_url(string $path = ''): string
 }
 
 
-/** Cheap check (no database): is there a signed-in session? (accounts live in config/auth.php) */
+/** Cheap check (no database): is there a signed-in session? (accounts live in src/auth.php) */
 function is_logged_in(): bool
 {
     return !empty($_SESSION['user_id']);

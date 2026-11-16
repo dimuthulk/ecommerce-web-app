@@ -704,7 +704,7 @@
         '<div class="admin-row"><span>Email</span><span>' +
         esc(c.email) +
         "</span></div>" +
-        '<div class="admin-row"><span>Phone</span><span>' +
+        '<div class="admin-row"><span>Phone: ' +
         esc(c.phone || "—") +
         "</span></div>" +
         '<div class="admin-row"><span>Orders</span><span>' +

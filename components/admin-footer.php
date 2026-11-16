@@ -2,7 +2,7 @@
     </div>
 
     <footer class="admin-footer">
-        <p>Development by Gdoop Platforms &middot; Authenticated administration required</p>
+        <p><?= !empty($adminBare) ? 'Website development by Gdoop Platforms' : 'Development by Gdoop Platforms &middot; Authenticated administration required' ?></p>
     </footer>
 
     <?php include __DIR__ . '/toast.php'; ?>

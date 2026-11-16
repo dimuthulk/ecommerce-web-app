@@ -24,8 +24,11 @@ require __DIR__ . '/../components/admin-header.php';
 
     <div class="auth-main">
         <h1>Admin sign in</h1>
+        <div class="alert alert--error" id="login-error" role="alert" hidden>
+            <strong>Sign in unsuccessful</strong>
+            <span id="login-error-text"></span>
+        </div>
         <p class="auth-lead">Sign in with your administrator credentials.</p>
-        <p class="alert alert--error" id="login-error" role="alert" hidden></p>
 
         <form class="auth-form" id="admin-login" novalidate>
             <div class="field">

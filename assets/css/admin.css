@@ -928,3 +928,43 @@
 #stock-status .alert--error strong {
     color: var(--color-accent);
 }
+
+/* ---------- Login: error alert (red title + dark message) ---------- */
+.admin-auth .alert--error {
+    margin-top: var(--space-5);
+    color: var(--color-ink);
+}
+
+.admin-auth .alert--error strong {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: var(--fw-medium);
+    color: var(--color-accent);
+}
+
+/* ---------- Customer detail: buttons stack, left aligned ---------- */
+[data-admin-page="customer"] .admin-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+}
+
+/* ---------- Customers + customer detail: mobile cards use a label | value grid ---------- */
+@media (max-width: 768px) {
+
+    [data-admin-page="customers"] .admin-table td,
+    [data-admin-page="customer"] .admin-table td {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        text-align: left;
+    }
+
+    [data-admin-page="customers"] .admin-table td::before,
+    [data-admin-page="customer"] .admin-table td::before {
+        font-weight: var(--fw-regular);
+    }
+
+    [data-admin-page="customer"] .admin-table td .badge {
+        justify-self: end;
+    }
+}

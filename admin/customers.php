@@ -14,6 +14,7 @@ require __DIR__ . '/../components/admin-header.php';
 <p class="admin-summary" id="summary"></p>
 <div id="results" aria-live="polite"><p class="admin-loading">Loading&hellip;</p></div>
 <div class="admin-pager" id="pager"></div>
+<div class="admin-actions" id="customer-open"></div>
 <p class="admin-note">Customer information is restricted to authenticated administrators. Access and retention must follow the approved privacy policy.</p>
 
 <?php require __DIR__ . '/../components/admin-footer.php'; ?>

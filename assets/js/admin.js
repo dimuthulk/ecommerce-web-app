@@ -427,7 +427,7 @@
         api.setCsrf(data.csrf);
         window.location.href = data.redirect;
       } catch (error) {
-        box.textContent = error.message;
+        $("#login-error-text", box).textContent = error.message;
         box.hidden = false;
         Kit.fieldErrors(form, error.fields);
         button.disabled = false;
@@ -991,6 +991,16 @@
       empty: "No customers match your search.",
       errorTitle: "Customers could not be loaded",
       params: () => ({ q: q.value.trim() }),
+      onLoaded: (data) => {
+        const open = $("#customer-open");
+        open.innerHTML = data.length
+          ? '<a class="btn btn--primary" href="' +
+            Kit.url("customer?id=" + data[0].id) +
+            '">View ' +
+            esc(data[0].name) +
+            "</a>"
+          : "";
+      },
       summaryText: (data, meta) =>
         meta.total +
         " customer" +

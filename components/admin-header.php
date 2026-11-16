@@ -42,7 +42,7 @@ $menu = [
     <header class="admin-header">
         <a class="admin-brand" href="<?= url('admin/') ?>">
             <span class="admin-brand__name"><?= e(app_name()) ?></span>
-            <span class="admin-brand__sub">Store administration</span>
+            <?php if (!$adminBare): ?><span class="admin-brand__sub">Store administration</span><?php endif; ?>
         </a>
         <?php if (!$adminBare): ?>
         <div class="admin-header__actions">

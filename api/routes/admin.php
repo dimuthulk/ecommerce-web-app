@@ -20,7 +20,7 @@ api_route('POST', '/admin/login', function () {
     }
     // A customer account must not learn that these credentials are valid: same answer as a wrong password
     if ($result['user'] === null || $result['user']['role'] !== 'admin') {
-        api_fail(401, 'invalid_credentials', 'The email or password is incorrect.');
+        api_fail(401, 'invalid_credentials', 'The email or password is incorrect. Please check your details and try again.');
     }
 
     login_user((int) $result['user']['id']);
