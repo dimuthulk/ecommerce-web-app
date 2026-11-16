@@ -842,6 +842,47 @@
           })
         : "";
 
+    // Wording for the empty state, e.g. "01–10 November 2026".
+    const rangeText = () => {
+      const long = (d) =>
+        new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+      if (f.from && f.to)
+        return f.from.slice(0, 7) === f.to.slice(0, 7)
+          ? long(f.from).slice(0, 2) + "–" + long(f.to)
+          : long(f.from) + " – " + long(f.to);
+      if (f.from) return "dates from " + long(f.from);
+      if (f.to) return "dates up to " + long(f.to);
+      return "the selected filters";
+    };
+    const emptyState = (sales) =>
+      '<section class="report-empty"><h2>' +
+      (sales
+        ? "No delivered orders in this period"
+        : "No orders in this period") +
+      "</h2><p>There are no " +
+      (sales ? "delivered" : "matching") +
+      " orders for " +
+      esc(rangeText()) +
+      ". " +
+      (sales
+        ? "Change the date range."
+        : "Change the date range or status filter.") +
+      '</p><button type="button" class="btn btn--primary" id="reset-filters">Reset report filters</button></section>';
+    const notice = (kind, title, text) =>
+      '<div class="alert report-alert report-alert--' +
+      kind +
+      '" role="' +
+      (kind === "error" ? "alert" : "status") +
+      '"><p class="report-alert__title">' +
+      esc(title) +
+      "</p><p>" +
+      esc(text) +
+      "</p></div>";
+
     const filters = (extra, button = "Apply filters") =>
       '<form class="admin-toolbar" id="filters" novalidate>' +
       extra +
@@ -895,13 +936,9 @@
         ) +
         '<div id="export-status" aria-live="polite"></div>' +
         (data.length === 0
-          ? '<p class="admin-empty">' +
-            (sales
-              ? "No delivered orders in this date range."
-              : "No orders match these filters.") +
-            " Try a wider date range.</p>"
+          ? emptyState(sales)
           : sales
-            ? '<section class="card admin-panel" style="margin-top:1rem"><h2>Delivered sales summary</h2>' +
+            ? '<section class="card admin-panel" style="margin-top:var(--space-5)"><h2>Delivered sales summary</h2>' +
               '<div class="admin-row"><span>Delivered orders</span><span>' +
               meta.delivered_orders +
               "</span></div>" +
@@ -938,7 +975,7 @@
                 ],
                 data,
               )
-            : '<section class="card admin-panel" style="margin-top:1rem"><h2>Orders summary</h2>' +
+            : '<section class="card admin-panel" style="margin-top:var(--space-5)"><h2>Orders summary</h2>' +
               '<div class="admin-row"><span>Matching orders</span><span>' +
               meta.matching +
               "</span></div>" +
@@ -966,7 +1003,9 @@
                 ],
                 data,
               )) +
-        '<p style="margin-top:1rem"><button type="button" class="btn btn--primary" id="export">' +
+        '<p style="margin-top:var(--space-5)"><button type="button" class="btn btn--primary" id="export"' +
+        (data.length === 0 ? " disabled" : "") +
+        ">" +
         csvLabel +
         "</button></p>";
 
@@ -978,9 +1017,27 @@
         if (!sales) f.status = form.status.value;
         show();
       });
+      const reset = $("#reset-filters", box);
+      if (reset)
+        reset.addEventListener("click", () => {
+          Object.assign(f, { from: range.from, to: range.to, status: "" });
+          show();
+        });
+      // Two steps, as in the design: prepare the file, then download it.
+      let file = null;
       $("#export", box).addEventListener("click", async (event) => {
         const button = event.currentTarget;
         const status = $("#export-status", box);
+        if (file) {
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(file.blob);
+          link.download = file.name;
+          document.body.append(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+          return;
+        }
         button.disabled = true;
         try {
           const blob = await api.blob("/admin/reports/" + tab + ".csv", {
@@ -988,26 +1045,28 @@
             to: f.to,
             status: sales ? "" : f.status,
           });
-          const link = document.createElement("a");
-          const name =
-            tab + "-" + new Date().toISOString().slice(0, 10) + ".csv";
-          link.href = URL.createObjectURL(blob);
-          link.download = name;
-          document.body.append(link);
-          link.click();
-          link.remove();
-          setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-          Kit.banner(
-            status,
+          file = {
+            blob,
+            name:
+              tab + "_" + (f.from || "start") + "_" + (f.to || "end") + ".csv",
+          };
+          status.innerHTML = notice(
             "success",
-            "Export ready: " + name + " was downloaded.",
+            "CSV export ready",
+            file.name +
+              " · " +
+              data.length +
+              (data.length === 1 ? " record" : " records") +
+              ". The file is ready to download.",
           );
+          button.textContent = "Download " + tab + " CSV";
         } catch (error) {
-          Kit.banner(
-            status,
+          status.innerHTML = notice(
             "error",
-            "The export failed. " + error.message + " No file was created.",
+            "Export couldn’t be prepared",
+            "Your report filters are preserved. Retry CSV export. No report data has been changed.",
           );
+          button.textContent = "Retry CSV export";
         } finally {
           button.disabled = false;
         }
