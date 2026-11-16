@@ -211,6 +211,7 @@ api_route('PATCH', '/admin/variants', function () {
 
     $product = admin_find_product($id);
     $variant = array_values(array_filter(admin_variants([$product]), static fn ($v) => $v['color'] === $color && $v['size'] === $size))[0];
+    $variant['product_total'] = array_sum(array_column(admin_variants([$product]), 'available'));
     api_ok($variant);
 }, 'admin');
 

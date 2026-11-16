@@ -919,3 +919,12 @@
 #report .report-alert--error .report-alert__title {
     color: var(--color-accent);
 }
+
+/* Variant stock validation banner: red title, dark body text (as in the design) */
+#stock-status .alert--error {
+    color: var(--color-ink);
+}
+
+#stock-status .alert--error strong {
+    color: var(--color-accent);
+}

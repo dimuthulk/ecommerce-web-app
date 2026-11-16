@@ -10,6 +10,8 @@ require __DIR__ . '/../components/admin-header.php';
 <h1 class="admin-title">Variant stock</h1>
 <p class="admin-sub">Store data &middot; <?= e(date('j F Y')) ?></p>
 
+<div id="stock-status" aria-live="polite"></div>
+
 <div class="admin-toolbar">
     <div class="field admin-toolbar__grow"><label for="q">Search product or variant</label><input class="input" id="q" type="search" placeholder="Product, SKU, color or size" autocomplete="off"></div>
     <div class="field"><label for="status">Stock status</label>

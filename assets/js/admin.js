@@ -644,8 +644,11 @@
 
     const key = (v) => v.product_id + "|" + v.color + "|" + v.size;
 
+    const status_ = $("#stock-status");
+
     function open(variant) {
       current = variant;
+      status_.innerHTML = "";
       editor.hidden = false;
       editor.innerHTML =
         '<h2 class="admin-card-title">Update selected variant</h2>' +
@@ -663,16 +666,18 @@
         '<input class="input" id="v-stock" name="stock" type="number" min="0" step="1" inputmode="numeric" value="' +
         variant.available +
         '" required>' +
-        '<p class="field-hint">Direct stock update: no negative or fractional inventory.</p></div>' +
+        '<p class="field-hint">Direct stock update; no negative or fractional inventory.</p></div>' +
         '<div class="admin-actions" style="margin-top:0"><button type="submit" class="btn btn--primary">Save stock</button><button type="button" class="btn btn--outline" data-discard>Discard changes</button></div></form>';
       const form = $("form", editor);
       $("[data-discard]", editor).addEventListener("click", () => {
         form.stock.value = variant.available;
         Kit.clearErrors(form);
+        status_.innerHTML = "";
       });
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
         Kit.clearErrors(form);
+        status_.innerHTML = "";
         try {
           const { data } = await api.patch("/admin/variants", {
             product_id: variant.product_id,
@@ -683,18 +688,37 @@
           Kit.toast(
             "Stock saved",
             "success",
-            data.sku + " now has " + data.available + " available.",
+            data.product_sku +
+              " / " +
+              data.color +
+              " / " +
+              data.size +
+              " is now " +
+              data.available +
+              " unit" +
+              (data.available === 1 ? "" : "s") +
+              ". Product stock total is " +
+              data.product_total +
+              " units.",
           );
           list.select(key(data));
           await list.reload();
           open(data);
         } catch (error) {
-          Kit.fieldErrors(
-            form,
-            error.fields && Object.keys(error.fields).length
-              ? error.fields
-              : { stock: error.message },
-          );
+          if (error.fields && error.fields.stock) {
+            const bad = String(form.stock.value).replace(/^-/, "\u2212");
+            status_.innerHTML =
+              '<div class="alert alert--error" role="alert"><strong>' +
+              esc(error.fields.stock.replace(/\.$/, "")) +
+              "</strong><br>The value " +
+              esc(bad) +
+              " is invalid. No stock changes have been saved.</div>";
+            Kit.fieldErrors(form, {
+              stock: "Use a whole number of 0 or more.",
+            });
+          } else {
+            Kit.fieldErrors(form, { stock: error.message });
+          }
         }
       });
     }
