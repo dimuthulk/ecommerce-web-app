@@ -832,6 +832,16 @@
       }
     }
 
+    // Reports show dates as "09 Oct 2026" (zero-padded day), as in the design.
+    const rdate = (text) =>
+      text
+        ? new Date(String(text).replace(" ", "T")).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "";
+
     const filters = (extra, button = "Apply filters") =>
       '<form class="admin-toolbar" id="filters" novalidate>' +
       extra +
@@ -914,7 +924,7 @@
                   { label: "Customer", cell: (r) => esc(r.customer) },
                   {
                     label: "Delivered",
-                    cell: (r) => esc(Kit.date(r.delivered_at)),
+                    cell: (r) => esc(rdate(r.delivered_at)),
                   },
                   {
                     label: "Merchandise",
@@ -943,7 +953,7 @@
                     cell: (r) => "<strong>" + esc(r.number) + "</strong>",
                   },
                   { label: "Customer", cell: (r) => esc(r.customer) },
-                  { label: "Placed", cell: (r) => esc(Kit.date(r.placed_at)) },
+                  { label: "Placed", cell: (r) => esc(rdate(r.placed_at)) },
                   { label: "Total", cell: (r) => esc(Kit.money(r.total)) },
                   { label: "Status", cell: (r) => Kit.badge(r.status) },
                   {

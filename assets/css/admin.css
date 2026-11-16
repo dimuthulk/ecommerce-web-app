@@ -811,3 +811,41 @@
 .admin-panel code {
     font-size: var(--fs-xs);
 }
+
+/* ---------- Reports page (matches the Admin Reports designs, 1440 + 390) ---------- */
+#report .admin-toolbar {
+    align-items: flex-start;
+}
+
+#report .admin-toolbar .field {
+    flex: 1 1 12rem;
+}
+
+#report .admin-table {
+    table-layout: fixed;
+}
+
+@media (max-width: 768px) {
+    #report .admin-toolbar .field {
+        flex-basis: 100%;
+    }
+
+    #report .admin-toolbar .btn {
+        width: auto;
+    }
+
+    #report .admin-table td {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+        text-align: left;
+    }
+
+    #report .admin-table td::before {
+        font-weight: var(--fw-regular);
+    }
+
+    #report .admin-table td .badge {
+        justify-self: end;
+    }
+}
