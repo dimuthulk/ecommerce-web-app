@@ -26,10 +26,23 @@
     const app = $("#app");
     const id = Number(app.dataset.id) || 0;
     const edit = id > 0;
-    document.title = (edit ? "Product edit" : "Create product") + " | admin";
-    $(".admin-title").textContent = edit ? "Product edit" : "Create product";
+    document.title = (edit ? "Product edit" : "Product create") + " | admin";
+    $(".admin-title").textContent = edit ? "Product edit" : "Product create";
     $(".admin-crumbs").textContent =
-      "Admin / " + (edit ? "Product edit" : "Create product");
+      "Admin / " + (edit ? "Product edit" : "Product create");
+    const saveLabel = edit ? "Save product" : "Create product";
+
+    /** Status panel above the form: coloured title + message (as in the design) */
+    const status = (kind, title, text) =>
+      '<div class="admin-status admin-status--' +
+      kind +
+      '" role="' +
+      (kind === "error" ? "alert" : "status") +
+      '"><strong>' +
+      esc(title) +
+      "</strong><span>" +
+      esc(text) +
+      "</span></div>";
 
     let product = null;
     let variants = [];
@@ -89,13 +102,13 @@
         '<div class="admin-stack">' +
         '<section class="card admin-panel"><h2>Product details</h2>' +
         '<form class="admin-form" id="product-form" novalidate>' +
-        '<div class="field"><label for="p-name">Product name <span aria-hidden="true">*</span></label><input class="input" id="p-name" name="name" maxlength="190" value="' +
+        '<div class="field"><label for="p-name">Product name <span aria-hidden="true">*</span></label><input class="input" id="p-name" name="name" maxlength="190" placeholder="Enter value" value="' +
         esc(p.name) +
         '" required></div>' +
-        '<div class="field"><label for="p-sku">Product SKU <span aria-hidden="true">*</span></label><input class="input" id="p-sku" name="sku" maxlength="60" value="' +
+        '<div class="field"><label for="p-sku">Product SKU <span aria-hidden="true">*</span></label><input class="input" id="p-sku" name="sku" maxlength="60" placeholder="Enter value" value="' +
         esc(p.sku) +
         '" required></div>' +
-        '<div class="field"><label for="p-category">Category <span aria-hidden="true">*</span></label><select class="select" id="p-category" name="category" required><option value="">Choose a category</option>' +
+        '<div class="field"><label for="p-category">Category <span aria-hidden="true">*</span></label><select class="select" id="p-category" name="category" required><option value="">Select category</option>' +
         categories
           .map(
             (c) =>
@@ -111,10 +124,10 @@
         "</select></div>" +
         '<div class="field"><label for="p-price">Price · ' +
         esc(Kit.currency) +
-        ' <span aria-hidden="true">*</span></label><input class="input" id="p-price" name="price" type="number" min="0" step="0.01" inputmode="decimal" value="' +
+        ' <span aria-hidden="true">*</span></label><input class="input" id="p-price" name="price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Enter value" value="' +
         esc(p.price) +
         '" required><p class="field-hint">Non-negative amount.</p></div>' +
-        '<div class="field"><label for="p-desc">Description <span aria-hidden="true">*</span></label><textarea class="textarea" id="p-desc" name="description" rows="4" maxlength="5000" required>' +
+        '<div class="field"><label for="p-desc">Description <span aria-hidden="true">*</span></label><textarea class="textarea" id="p-desc" name="description" rows="4" maxlength="5000" placeholder="Enter value" required>' +
         esc(p.description) +
         "</textarea></div>" +
         '<label class="check"><input type="checkbox" name="published"' +
@@ -140,7 +153,9 @@
         "</aside>" +
         "</div>" +
         '<div class="admin-actions">' +
-        '<button type="submit" class="btn btn--primary" form="product-form" id="save">Save product</button>' +
+        '<button type="submit" class="btn btn--primary" form="product-form" id="save">' +
+        saveLabel +
+        "</button>" +
         '<button type="button" class="btn btn--outline" id="discard">Cancel changes</button>' +
         '<a class="btn btn--ghost" href="' +
         Kit.url("products") +
@@ -149,18 +164,29 @@
       drawVariants();
       bind();
       if (new URLSearchParams(location.search).get("saved")) {
-        Kit.banner(
-          $("#save-status"),
+        $("#save-status").innerHTML = status(
           "success",
-          "Product saved. It is now " +
-            (p.published ? "live in the storefront." : "saved as unpublished."),
+          "Product saved",
+          p.name +
+            " and its variants have been saved. The catalogue now reflects these details.",
         );
       }
     }
 
     function imagesHtml(p) {
+      const alt =
+        '<div class="admin-form"><div class="field"><label for="p-alt">Image alternative text</label><input class="input" id="p-alt" name="image_alt" form="product-form" maxlength="190" value="' +
+        esc(p.image_alt) +
+        '" placeholder="e.g. Essential Cotton Tee in Chalk, front view"></div></div>';
       if (!edit)
-        return '<p class="admin-note">Save the product first, then add its pictures here.</p>';
+        return (
+          '<div class="image-main">' +
+          placeholderSvg +
+          "</div>" +
+          '<button type="button" class="btn btn--outline btn--block" disabled style="margin-top:.75rem">Upload image</button>' +
+          '<p class="admin-note">Save the product first, then add its pictures here.</p>' +
+          alt
+        );
       const first = p.images[0];
       return (
         '<div class="image-main">' +
@@ -172,19 +198,17 @@
             '">'
           : placeholderSvg) +
         "</div>" +
+        '<input type="file" id="image-file" class="sr-file" accept="image/jpeg,image/png,image/webp,image/gif">' +
+        '<button type="button" class="btn btn--outline btn--block" id="upload" style="margin-top:.75rem">' +
+        (first ? "Add additional image" : "Upload image") +
+        "</button>" +
         '<p class="admin-note">' +
         (first
           ? "Main picture. The first picture is shown first in the store."
           : "No pictures yet. Customers see a grey placeholder.") +
         "</p>" +
-        '<input type="file" id="image-file" class="sr-file" accept="image/jpeg,image/png,image/webp,image/gif">' +
-        '<button type="button" class="btn btn--outline btn--block" id="upload" style="margin-top:.75rem">' +
-        (first ? "Add additional image" : "Upload image") +
-        "</button>" +
         '<p class="field-hint">JPG, PNG, WEBP or GIF, up to 3 MB, at most 6 pictures.</p>' +
-        '<div class="admin-form"><div class="field"><label for="p-alt">Image alternative text</label><input class="input" id="p-alt" name="image_alt" form="product-form" maxlength="190" value="' +
-        esc(p.image_alt) +
-        '" placeholder="e.g. Essential Cotton Tee in Chalk, front view"></div></div>' +
+        alt +
         (p.images.length
           ? '<div class="image-list">' +
             p.images
@@ -313,8 +337,8 @@
         event.preventDefault();
         Kit.clearErrors(form);
         variantError.hidden = true;
-        const status = $("#save-status");
-        status.innerHTML = "";
+        const saveStatus = $("#save-status");
+        saveStatus.innerHTML = "";
         const body = {
           name: form.name.value,
           sku: form.sku.value,
@@ -340,13 +364,12 @@
             return;
           }
           product = data;
-          Kit.banner(
-            status,
+          button.textContent = saveLabel;
+          saveStatus.innerHTML = status(
             "success",
-            "Product saved. It is " +
-              (data.published
-                ? "live in the storefront."
-                : "saved as unpublished."),
+            "Product saved",
+            data.name +
+              " and its variants have been saved. The catalogue now reflects these details.",
           );
           Kit.toast("Product saved", "success");
           const keep = variants;
@@ -358,13 +381,14 @@
           void keep;
           drawVariants();
         } catch (error) {
-          Kit.banner(
-            status,
+          button.textContent = "Retry save";
+          saveStatus.innerHTML = status(
             "error",
-            "Product could not be saved. " +
+            "Product couldn’t be saved",
+            "Your changes are kept in this form. No update was applied. Check the fields and retry." +
               (error.fields && Object.keys(error.fields).length
-                ? "Check the highlighted fields."
-                : error.message),
+                ? ""
+                : " " + error.message),
           );
           const fields = Object.assign({}, error.fields);
           if (fields.variants) {
@@ -372,7 +396,7 @@
             delete fields.variants;
           }
           Kit.fieldErrors(form, fields);
-          status.scrollIntoView({ block: "nearest" });
+          saveStatus.scrollIntoView({ block: "nearest" });
         } finally {
           button.disabled = false;
         }
