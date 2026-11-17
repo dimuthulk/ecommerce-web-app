@@ -204,12 +204,7 @@ function request_password_reset(string $email): array
         ->execute([hash('sha256', $token), RESET_TOKEN_MINUTES, $user['id']]);
 
     $link = absolute_url('reset-password.php') . '?token=' . $token;
-    send_mail(
-        $user['email'],
-        'Reset your password',
-        "Hello " . $user['first_name'] . ",\n\nUse this link to choose a new password. It can be used once and expires in "
-        . RESET_TOKEN_MINUTES . " minutes:\n\n$link\n\nIf you did not ask for this, you can ignore this message.\n\n" . app_name()
-    );
+    send_password_reset_email($user, $link);
 
     return ['available' => true, 'link' => (IS_LOCAL && !MAIL_ENABLED) ? $link : null];
 }
