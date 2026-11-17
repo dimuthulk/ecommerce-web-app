@@ -117,6 +117,10 @@ try {
     //   php migration.php seed          or          /migration?key=...&seed=1
     // Products that already exist (same id/sku) are left alone, so edits are never overwritten.
     $wantsSeed = $isCli ? in_array('seed', $argv ?? [], true) : (($_GET['seed'] ?? '') === '1');
+    if ($wantsSeed && !is_file(__DIR__ . '/data/products.php')) {
+        echo "ℹ data/products.php is not in this project, so no sample products were added.\n";
+        $wantsSeed = false;
+    }
     if ($wantsSeed) {
         $samples = require __DIR__ . '/data/products.php';
         $insert  = $pdo->prepare(

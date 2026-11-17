@@ -152,7 +152,7 @@ function product_from_row(array $row): array
 
 /**
  * All active (published) products, in the same shape the pages use. Cached for the request.
- * (data/products.php is only the sample data used by `migration.php seed`.)
+ * (Sample products for `migration.php seed` come from data/products.php, which is optional.)
  */
 function all_products(): array
 {
