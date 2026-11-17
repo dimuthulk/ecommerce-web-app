@@ -250,7 +250,7 @@ body {
 }
 
 .placeholder--product {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
 }
 
 .placeholder--promo {
@@ -344,7 +344,7 @@ a.chip:hover {
 
 .product-card__media img {
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
 }
 
@@ -375,10 +375,34 @@ a.chip:hover {
     color: var(--color-muted);
 }
 
+/* .product-card__cta {
+    width: 100%;
+    margin-top: var(--space-3);
+} */
+
 .product-card__cta {
     width: 100%;
     margin-top: var(--space-3);
+    background: var(--color-white);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
 }
+
+.product-card__cta:hover {
+    background: var(--color-accent);
+    color: var(--color-white);
+}
+
+/* .product-card__cta {
+    width: 100%;
+    margin-top: var(--space-3);
+    background: var(--color-accent);
+    color: var(--color-white);
+}
+
+.product-card__cta:hover {
+    background: var(--color-accent-hover);
+} */
 
 /* ---------- Promo cards (home) ---------- */
 .promo-grid {
@@ -689,10 +713,6 @@ a.chip:hover {
     margin-top: var(--space-6);
 }
 
-.product-grid--listing .placeholder--product,
-.product-grid--listing .product-card__media img {
-    aspect-ratio: 16 / 15;
-}
 
 .empty-state {
     margin-top: var(--space-6);
@@ -784,7 +804,7 @@ a.page-link:hover {
 }
 
 .gallery__frame--main {
-    aspect-ratio: 21 / 20;
+    aspect-ratio: 1 / 1;
 }
 
 .gallery__thumbs {
@@ -801,7 +821,7 @@ a.page-link:hover {
 }
 
 .gallery__thumb .gallery__frame {
-    aspect-ratio: 11 / 8;
+    aspect-ratio: 1 / 1;
     transition: opacity var(--transition);
 }
 
@@ -1181,7 +1201,7 @@ a.page-link:hover {
 .placeholder--thumb {
     align-items: flex-start;
     padding-top: var(--space-3);
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1 / 1;
 }
 
 .placeholder--thumb svg {
@@ -1222,7 +1242,7 @@ a.page-link:hover {
 
 .cart-line__image img {
     width: 100%;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
 }
 
@@ -1406,7 +1426,7 @@ a.page-link:hover {
 
 .mini-line__image img {
     width: 100%;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
 }
 
@@ -1521,7 +1541,7 @@ a.page-link:hover {
 
 .order-line__image img {
     width: 100%;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
 }
 
@@ -2085,10 +2105,6 @@ a.page-link:hover {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .product-grid--listing .placeholder--product,
-    .product-grid--listing .product-card__media img {
-        aspect-ratio: 16 / 9;
-    }
 
     .product-grid--listing .product-card__name {
         font-size: var(--fs-sm);
@@ -2201,10 +2217,6 @@ a.page-link:hover {
         gap: var(--space-6) var(--space-4);
     }
 
-    .product-grid--listing .placeholder--product,
-    .product-grid--listing .product-card__media img {
-        aspect-ratio: 4 / 5;
-    }
 
     .product-grid--listing .placeholder svg {
         width: 4.5rem;
@@ -2228,22 +2240,12 @@ a.page-link:hover {
         margin-top: var(--space-6);
     }
 
-    .gallery__frame--main {
-        aspect-ratio: 5 / 4;
-    }
 
-    .gallery__thumb .gallery__frame {
-        aspect-ratio: 5 / 4;
-    }
 
     .product-grid--related .product-card:nth-child(3) {
         display: none;
     }
 
-    .product-grid--related .placeholder--product,
-    .product-grid--related .product-card__media img {
-        aspect-ratio: 16 / 9;
-    }
 
     .product-grid--related .product-card__name {
         font-size: var(--fs-sm);
@@ -2255,13 +2257,7 @@ a.page-link:hover {
         font-size: var(--fs-page-title);
     }
 
-    .gallery__frame--main {
-        aspect-ratio: 9 / 10;
-    }
 
-    .gallery__thumb .gallery__frame {
-        aspect-ratio: 4 / 5;
-    }
 
     .gallery__thumb .placeholder svg {
         width: 2.5rem;
@@ -2273,10 +2269,6 @@ a.page-link:hover {
         gap: var(--space-6) var(--space-4);
     }
 
-    .product-grid--related .placeholder--product,
-    .product-grid--related .product-card__media img {
-        aspect-ratio: 1 / 1;
-    }
 
     .product-grid--related .placeholder svg {
         width: 4.5rem;

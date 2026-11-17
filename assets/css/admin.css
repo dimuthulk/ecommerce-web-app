@@ -489,7 +489,7 @@
 /* product images */
 .image-main {
     margin-top: var(--space-4);
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1 / 1;
     background: var(--color-surface);
     border: var(--border);
     display: flex;
@@ -526,7 +526,7 @@
 
 .image-item img {
     width: 3.5rem;
-    height: 4.375rem;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
     border: var(--border);
 }
@@ -778,7 +778,7 @@
 
 .admin-line__image {
     margin-top: 0;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1 / 1;
 }
 
 .admin-line__image svg {
@@ -1070,9 +1070,6 @@
     }
 }
 
-#images-panel .image-main {
-    aspect-ratio: 1 / 1;
-}
 
 /* Save status: coloured title + dark message */
 .admin-status {
