@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const setCartCount = (count) => {
     document.querySelectorAll("[data-cart-count]").forEach((node) => {
       node.textContent = String(count);
+      node.hidden = Number(count) < 1; // hide the badge when the bag is empty
     });
   };
 
@@ -79,7 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
       node.removeAttribute("aria-invalid");
       node.removeAttribute("aria-describedby");
     });
-    document.querySelectorAll("[data-api-alert]").forEach((node) => node.remove());
+    document
+      .querySelectorAll("[data-api-alert]")
+      .forEach((node) => node.remove());
   };
 
   const showAlert = (form, message) => {
@@ -117,7 +120,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (shown === 0 || error.code !== "validation_failed" || alwaysAlert) {
-      showAlert(form, shown > 0 && error.code === "validation_failed" ? "Please check the highlighted fields." : error.message);
+      showAlert(
+        form,
+        shown > 0 && error.code === "validation_failed"
+          ? "Please check the highlighted fields."
+          : error.message,
+      );
     }
     if (firstInput) firstInput.focus();
   };
@@ -130,7 +138,10 @@ document.addEventListener("DOMContentLoaded", () => {
         credentials: "same-origin",
         headers: { Accept: "text/html" },
       });
-      const doc = new DOMParser().parseFromString(await response.text(), "text/html");
+      const doc = new DOMParser().parseFromString(
+        await response.text(),
+        "text/html",
+      );
       const next = doc.querySelector(".container.page-top");
       const current = document.querySelector(".container.page-top");
       if (!response.ok || !next || !current) throw new Error("no page");
@@ -146,7 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Typing a new quantity saves it (Enter or leaving the box)
   document.addEventListener("change", (event) => {
     const input = event.target;
-    if (!input.matches || !input.matches(".cart-line__controls .qty__input")) return;
+    if (!input.matches || !input.matches(".cart-line__controls .qty__input"))
+      return;
     const form = input.form;
     if (!form || form.dataset.busy) return;
     const save = form.querySelector('button[name="action"][value="set"]');
@@ -160,19 +172,43 @@ document.addEventListener("DOMContentLoaded", () => {
     "add-to-bag": {
       errors: "toast",
       run: (form, data) =>
-        api.post("/cart/items", { slug: form.dataset.slug, color: data.color, size: data.size, qty: data.qty }),
+        api.post("/cart/items", {
+          slug: form.dataset.slug,
+          color: data.color,
+          size: data.size,
+          qty: data.qty,
+        }),
       done: ({ data }, form) => {
         setCartCount(data.cart.totals.items);
 
-        const view = { actionLabel: "View bag", actionUrl: form.dataset.cartUrl };
+        const view = {
+          actionLabel: "View bag",
+          actionUrl: form.dataset.cartUrl,
+        };
         const what = data.name + " \u00b7 " + data.label;
 
         if (data.notice === "at_maximum") {
-          toast({ title: "Already at the maximum", text: "Only " + data.available + " available in " + data.label + ".", type: "info", ...view });
+          toast({
+            title: "Already at the maximum",
+            text:
+              "Only " + data.available + " available in " + data.label + ".",
+            type: "info",
+            ...view,
+          });
         } else if (data.notice === "limited_by_stock") {
-          toast({ title: "Added to bag", text: what + " \u00b7 only " + data.available + " available", type: "success", ...view });
+          toast({
+            title: "Added to bag",
+            text: what + " \u00b7 only " + data.available + " available",
+            type: "success",
+            ...view,
+          });
         } else {
-          toast({ title: "Added to bag", text: what + (data.added > 1 ? " \u00b7 Qty " + data.added : ""), type: "success", ...view });
+          toast({
+            title: "Added to bag",
+            text: what + (data.added > 1 ? " \u00b7 Qty " + data.added : ""),
+            type: "success",
+            ...view,
+          });
         }
 
         if (form.elements.qty) form.elements.qty.value = 1;
@@ -183,7 +219,8 @@ document.addEventListener("DOMContentLoaded", () => {
       errors: "toast",
       run: (form, data, submitter) => {
         const action = (submitter && submitter.value) || "set";
-        if (action === "remove") return api.del("/cart/items", { key: data.key });
+        if (action === "remove")
+          return api.del("/cart/items", { key: data.key });
 
         const current = parseInt(form.elements.qty.defaultValue, 10) || 1;
         let qty = current;
@@ -191,15 +228,28 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (action === "dec") qty = current - 1;
         else qty = parseInt(data.qty, 10) || current;
 
-        return api.patch("/cart/items", { key: data.key, qty: Math.max(1, qty) });
+        return api.patch("/cart/items", {
+          key: data.key,
+          qty: Math.max(1, qty),
+        });
       },
       done: async ({ data }, form) => {
         await refreshPage();
         if (data.notice === "limited_by_stock") {
-          const line = data.cart.items.find((item) => item.key === form.elements.key.value);
+          const line = data.cart.items.find(
+            (item) => item.key === form.elements.key.value,
+          );
           toast({
             title: "Quantity updated",
-            text: line ? "Only " + line.available + " available in " + line.color + " / " + line.size + "." : "Not enough stock for that quantity.",
+            text: line
+              ? "Only " +
+                line.available +
+                " available in " +
+                line.color +
+                " / " +
+                line.size +
+                "."
+              : "Not enough stock for that quantity.",
             type: "info",
           });
         }
@@ -213,7 +263,10 @@ document.addEventListener("DOMContentLoaded", () => {
       run: (form, data) => api.post("/auth/login", data),
       done: ({ data }) => {
         syncCsrf(data);
-        flash({ title: "Welcome back, " + data.user.first_name, type: "success" });
+        flash({
+          title: "Welcome back, " + data.user.first_name,
+          type: "success",
+        });
         go(data.redirect);
       },
     },
@@ -222,7 +275,11 @@ document.addEventListener("DOMContentLoaded", () => {
       run: (form, data) => api.post("/auth/register", data),
       done: ({ data }) => {
         syncCsrf(data);
-        flash({ title: "Welcome, " + data.user.first_name, text: "Your account is ready.", type: "success" });
+        flash({
+          title: "Welcome, " + data.user.first_name,
+          text: "Your account is ready.",
+          type: "success",
+        });
         go(data.redirect);
       },
     },
@@ -245,10 +302,16 @@ document.addEventListener("DOMContentLoaded", () => {
         lead.append(
           "If an account exists for ",
           strong,
-          ", we have sent a secure link to reset the password. It can be used once and expires in " + (form.dataset.resetMinutes || "a few") + " minutes.",
+          ", we have sent a secure link to reset the password. It can be used once and expires in " +
+            (form.dataset.resetMinutes || "a few") +
+            " minutes.",
         );
 
-        const note = make("p", "auth-note", "Nothing arrived? Check your spam folder, or ");
+        const note = make(
+          "p",
+          "auth-note",
+          "Nothing arrived? Check your spam folder, or ",
+        );
         const again = make("a", "", "request another link");
         again.href = form.dataset.forgotUrl || window.location.href;
         note.append(again, " after a minute.");
@@ -260,7 +323,12 @@ document.addEventListener("DOMContentLoaded", () => {
           dev.setAttribute("role", "status");
           const link = make("a", "", data.dev_link);
           link.href = data.dev_link;
-          dev.append(make("strong", "", "Development only."), " E-mail is not sent from localhost, so here is the link (also saved in storage/mail.log):", document.createElement("br"), link);
+          dev.append(
+            make("strong", "", "Development only."),
+            " E-mail is not sent from localhost, so here is the link (also saved in storage/mail.log):",
+            document.createElement("br"),
+            link,
+          );
           parts.push(dev);
         }
 
@@ -282,7 +350,9 @@ document.addEventListener("DOMContentLoaded", () => {
           title: "Check your inbox",
           text: "If an account exists for this email, we have sent a secure reset link.",
           type: "success",
-          ...(data.dev_link ? { actionLabel: "Open link", actionUrl: data.dev_link, timeout: 0 } : {}),
+          ...(data.dev_link
+            ? { actionLabel: "Open link", actionUrl: data.dev_link, timeout: 0 }
+            : {}),
         });
       },
     },
@@ -290,7 +360,11 @@ document.addEventListener("DOMContentLoaded", () => {
     contact: {
       run: (form, data) => api.post("/contact", data),
       done: (result, form) => {
-        toast({ title: "Message sent", text: "Thank you. We will get back to you soon.", type: "success" });
+        toast({
+          title: "Message sent",
+          text: "Thank you. We will get back to you soon.",
+          type: "success",
+        });
         ["message", "order_ref"].forEach((name) => {
           if (form.elements[name]) form.elements[name].value = "";
         });
@@ -328,7 +402,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.dataset.busy = "1";
     clearErrors(form);
-    const buttons = [...form.querySelectorAll('button[type="submit"]:not(:disabled)')];
+    const buttons = [
+      ...form.querySelectorAll('button[type="submit"]:not(:disabled)'),
+    ];
     buttons.forEach((button) => {
       button.disabled = true;
     });
@@ -341,9 +417,14 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       if (!(error instanceof api.ApiError)) {
         console.error(error);
-        error = new api.ApiError(0, "client_error", "Something went wrong. Please try again.");
+        error = new api.ApiError(
+          0,
+          "client_error",
+          "Something went wrong. Please try again.",
+        );
       }
-      if (handler.errors === "toast") toast({ title: error.message, type: "error" });
+      if (handler.errors === "toast")
+        toast({ title: error.message, type: "error" });
       else showErrors(form, error, { alwaysAlert: handler.alwaysAlert });
       if (handler.failed) handler.failed(error);
     } finally {

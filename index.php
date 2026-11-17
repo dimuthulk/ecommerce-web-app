@@ -20,12 +20,14 @@ $promos = [
         'eyebrow' => 'The linen edit',
         'title'   => 'An easier kind of dressing.',
         'caption' => 'Linen collection / editorial styling',
+        'image'   => 'promo-linen.webp',
         'href'    => 'collections.php?collection=linen',
     ],
     [
         'eyebrow' => 'Essential cotton',
         'title'   => 'The foundation of your wardrobe.',
         'caption' => 'Cotton collection / fabric and fit',
+        'image'   => 'promo-cotton.webp',
         'href'    => 'collections.php?collection=cotton',
     ],
 ];
@@ -40,7 +42,7 @@ $promos = [
         <a class="btn btn--primary" href="<?= url('shop.php') ?>">Explore the collection</a>
     </div>
     <div class="hero__media">
-        <?= image_placeholder('Collection campaign', false, 'hero') ?>
+        <img class="hero__img" src="<?= e(asset('images/hero__img.webp')) ?>" alt="Models wearing the everyday collection">
     </div>
 </section>
 
@@ -71,7 +73,7 @@ $promos = [
     <div class="promo-grid">
         <?php foreach ($promos as $promo): ?>
         <article class="promo-card">
-            <?= image_placeholder($promo['caption'], false, 'promo') ?>
+            <img class="promo-card__img" src="<?= e(asset('images/' . $promo['image'])) ?>" alt="<?= e($promo['caption']) ?>">
             <p class="eyebrow"><?= e($promo['eyebrow']) ?></p>
             <h2 class="card-title"><?= e($promo['title']) ?></h2>
             <a class="btn btn--outline" href="<?= url($promo['href']) ?>">Discover collection</a>

@@ -338,6 +338,18 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  /* ---------- Header search bar: keep the URL clean when it is empty ---------- */
+  const headerSearch = document.querySelector("form.header-search");
+  if (headerSearch && headerSearch.elements.q) {
+    const q = headerSearch.elements.q;
+    headerSearch.addEventListener("submit", () => {
+      if (!q.value.trim()) q.disabled = true;
+    });
+    window.addEventListener("pageshow", () => {
+      q.disabled = false;
+    });
+  }
+
   /* ---------- "Search" in the header jumps to the shop search box ---------- */
   const focusSearch = () => {
     if (location.hash !== "#search") return;
