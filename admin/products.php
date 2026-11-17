@@ -16,7 +16,9 @@ require __DIR__ . '/../components/admin-header.php';
     <a class="btn btn--primary" href="<?= url('admin/product.php') ?>">Create product</a>
 </div>
 <p class="admin-summary" id="summary"></p>
-<div id="results" aria-live="polite"><p class="admin-loading">Loading&hellip;</p></div>
+<div id="results" aria-live="polite">
+    <div class="admin-loadbox" role="status"><div class="admin-loadbox__note"><strong>Loading catalogue</strong><span>Fetching product details and stock totals.</span></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div></div>
+</div>
 <div class="admin-pager" id="pager"></div>
 
 <?php require __DIR__ . '/../components/admin-footer.php'; ?>

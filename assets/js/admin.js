@@ -219,6 +219,24 @@
       dialog.showModal();
     });
 
+  /** Loading panel: tinted note + four grey placeholder rows */
+  Kit.loadingBox = (title, text) =>
+    '<div class="admin-loadbox" role="status"><div class="admin-loadbox__note"><strong>' +
+    esc(title) +
+    "</strong><span>" +
+    esc(text) +
+    '</span></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div></div>';
+
+  /** Centered empty / error panel: red dash, title, text, one action (html) */
+  Kit.stateBox = (title, text, actionHtml) =>
+    '<div class="admin-state"><span class="admin-state__dash" aria-hidden="true"></span><h2 class="admin-state__title">' +
+    esc(title) +
+    '</h2><p class="admin-state__text">' +
+    esc(text) +
+    "</p>" +
+    actionHtml +
+    "</div>";
+
   /* ---------- Table + pager rendering ---------- */
   /** columns: [{ label, cell: (row) => html }] — the label also appears on small screens */
   Kit.table = (columns, rows, { selectedKey, rowKey } = {}) =>
@@ -249,7 +267,7 @@
       .join("") +
     "</tbody></table></div>";
 
-  Kit.pager = (el, meta, goTo, noun = "items") => {
+  Kit.pager = (el, meta, goTo, noun = "items", always = false) => {
     if (!meta || !meta.total) {
       el.innerHTML = "";
       return;
@@ -262,7 +280,7 @@
         ? "Showing all " + meta.total + " " + noun
         : "Showing " + from + "–" + to + " of " + meta.total) +
       "</p>";
-    if (meta.pages > 1) {
+    if (meta.pages > 1 || always) {
       html +=
         meta.page > 1
           ? '<button type="button" class="page-link" data-page="' +
@@ -296,26 +314,35 @@
 
   /**
    * A filterable, paginated list.
-   * options: endpoint, results, pager, summary?, params(): object, columns, rowKey?, noun, empty, onLoaded?(data, meta)
+   * options: endpoint, results, pager, summary?, params(): object, columns, rowKey?, noun, empty, onLoaded?(data, meta),
+   * loading? (html shown on first load / retry), emptyHtml?(data, meta) (html or null), errorState? {title, text, retry}, pagerAlways?
    */
   Kit.list = (o) => {
     let page = 1;
     let selected = null;
+    let loaded = false;
     const state = { reload };
 
     async function load() {
+      if (o.loading && !loaded) {
+        o.results.innerHTML = o.loading;
+        o.pager.innerHTML = "";
+        if (o.summary) o.summary.textContent = "";
+      }
       try {
         const { data, meta } = await api.get(
           o.endpoint,
           Object.assign({}, o.params(), { page }),
         );
         if (meta.page !== page) page = meta.page;
+        loaded = true;
         o.results.innerHTML = data.length
           ? Kit.table(o.columns, data, {
               rowKey: o.rowKey,
               selectedKey: selected,
             })
-          : '<p class="admin-empty">' + esc(o.empty) + "</p>";
+          : (o.emptyHtml && o.emptyHtml(data, meta)) ||
+            '<p class="admin-empty">' + esc(o.empty) + "</p>";
         Kit.pager(
           o.pager,
           meta,
@@ -324,6 +351,7 @@
             load();
           },
           o.noun,
+          o.pagerAlways,
         );
         if (o.summary)
           o.summary.textContent = o.summaryText
@@ -344,7 +372,20 @@
         }
         if (o.onLoaded) o.onLoaded(data, meta, state);
       } catch (error) {
+        loaded = false;
         o.pager.innerHTML = "";
+        if (o.errorState) {
+          if (o.summary) o.summary.textContent = "";
+          o.results.innerHTML = Kit.stateBox(
+            o.errorState.title,
+            o.errorState.text,
+            '<button type="button" class="btn btn--primary" data-retry>' +
+              esc(o.errorState.retry) +
+              "</button>",
+          );
+          $("[data-retry]", o.results).addEventListener("click", load);
+          return;
+        }
         Kit.banner(
           o.results,
           "error",
@@ -590,26 +631,49 @@
       noun: "products",
       empty: "No products match your search.",
       errorTitle: "Products could not be loaded",
+      loading: Kit.loadingBox(
+        "Loading catalogue",
+        "Fetching product details and stock totals.",
+      ),
+      pagerAlways: true,
+      errorState: {
+        title: "Products couldn’t be loaded",
+        text: "Nothing has changed in your catalogue. Retry to retrieve the product list.",
+        retry: "Retry loading products",
+      },
+      emptyHtml: () =>
+        q.value.trim() || category.value
+          ? null
+          : Kit.stateBox(
+              "Your catalogue starts here",
+              "No products have been added. Create your first clothing product with a category, price, images and size/color variants.",
+              '<a class="btn btn--primary" href="' +
+                Kit.url("product") +
+                '">Create first product</a>',
+            ),
       params: () => ({ q: q.value.trim(), category: category.value }),
       summaryText: (data, meta) =>
-        meta.summary && !q.value.trim() && !category.value
-          ? meta.summary.products +
-            " products · " +
-            meta.summary.categories +
-            " categories · " +
-            meta.summary.units +
-            " units available"
-          : meta.total + " matching product" + (meta.total === 1 ? "" : "s"),
+        meta.total === 0 && !q.value.trim() && !category.value
+          ? ""
+          : meta.summary && !q.value.trim() && !category.value
+            ? meta.summary.products +
+              " products · " +
+              meta.summary.categories +
+              " categories · " +
+              meta.summary.units +
+              " units available"
+            : meta.total + " matching product" + (meta.total === 1 ? "" : "s"),
       columns: [
         {
           label: "Product / SKU",
           cell: (p) =>
-            "<strong>" +
+            "<span><strong>" +
             esc(p.name) +
             " / " +
             esc(p.sku) +
             "</strong>" +
-            (p.published ? "" : ' <span class="muted">(unpublished)</span>'),
+            (p.published ? "" : ' <span class="muted">(unpublished)</span>') +
+            "</span>",
         },
         { label: "Category", cell: (p) => esc(p.category) },
         { label: "Price", cell: (p) => esc(Kit.money(p.price)) },

@@ -953,18 +953,106 @@
 @media (max-width: 768px) {
 
     [data-admin-page="customers"] .admin-table td,
-    [data-admin-page="customer"] .admin-table td {
+    [data-admin-page="customer"] .admin-table td,
+    [data-admin-page="products"] .admin-table td {
         display: grid;
         grid-template-columns: 1fr 1fr;
         text-align: left;
     }
 
     [data-admin-page="customers"] .admin-table td::before,
-    [data-admin-page="customer"] .admin-table td::before {
+    [data-admin-page="customer"] .admin-table td::before,
+    [data-admin-page="products"] .admin-table td::before {
         font-weight: var(--fw-regular);
     }
 
     [data-admin-page="customer"] .admin-table td .badge {
         justify-self: end;
+    }
+}
+
+/* ---------- Products catalogue (per design) ---------- */
+[data-admin-page="products"] .admin-toolbar {
+    align-items: flex-start;
+}
+
+[data-admin-page="products"] .admin-toolbar .field {
+    flex: 1 1 16rem;
+}
+
+/* Loading panel */
+.admin-loadbox {
+    margin-top: var(--space-5);
+}
+
+.admin-loadbox__note {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--color-accent-tint);
+    border: var(--border);
+    font-size: var(--fs-sm);
+    color: var(--color-ink);
+}
+
+.admin-loadbox__note strong {
+    font-weight: var(--fw-medium);
+    color: var(--color-accent);
+}
+
+.admin-skeleton {
+    height: 4rem;
+    margin-top: var(--space-5);
+    background: var(--color-surface);
+}
+
+/* Empty + error panel */
+.admin-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: var(--space-5);
+    padding: 5rem var(--space-5);
+    text-align: center;
+    background: var(--color-white);
+    border: var(--border);
+}
+
+.admin-state__dash {
+    width: 1.5rem;
+    height: 3px;
+    background: var(--color-accent-bright);
+}
+
+.admin-state__title {
+    margin-top: var(--space-5);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+}
+
+.admin-state__text {
+    margin-top: var(--space-3);
+    font-size: var(--fs-base);
+}
+
+.admin-state .btn {
+    margin-top: var(--space-5);
+}
+
+@media (max-width: 768px) {
+    [data-admin-page="products"] .admin-toolbar .btn {
+        width: auto;
+    }
+
+    .admin-skeleton {
+        height: 6.5rem;
+    }
+
+    [data-admin-page="products"] .admin-pager {
+        flex-wrap: nowrap;
+    }
+
+    [data-admin-page="products"] .admin-pager .page-link {
+        flex: none;
     }
 }
