@@ -21,3 +21,5 @@ Thumbs.db
 mail.example.php
 mail.local.php
 mail.remote.php
+config/payhere.local.php
+config/payhere.remote.php
