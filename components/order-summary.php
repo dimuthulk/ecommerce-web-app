@@ -4,6 +4,7 @@
  *
  * @var array  $totals     from cart_totals()
  * @var string $summaryCta optional, already-escaped HTML shown under the total (e.g. the checkout button)
+ * @var string $summaryPayment optional payment line (default: Cash on delivery)
  */
 ?>
 <section class="card summary" aria-labelledby="summary-title">
@@ -25,5 +26,5 @@
     </dl>
 
     <?= $summaryCta ?? '' ?>
-    <p class="summary__payment">Cash on delivery</p>
+    <p class="summary__payment"><?= e($summaryPayment ?? 'Cash on delivery') ?></p>
 </section>
