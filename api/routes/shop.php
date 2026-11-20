@@ -127,15 +127,17 @@ api_route('DELETE', '/cart/items', function () {
 
 /* ---------- Checkout ---------- */
 
-// POST /api/checkout   { name, email, phone, line1, line2?, city, postal, notes?, payment_method?, terms }
+// POST /api/checkout   { name, email, phone, line1, line2?, city, postal, notes?, payment_method? ('cod' | 'payhere'), terms }
 api_route('POST', '/checkout', function () {
     [$clean, $errors] = validate_checkout(api_input());
     if ($errors) {
         api_fail(422, 'validation_failed', 'Please check the highlighted fields.', $errors);
     }
 
+    $method = api_str(api_input(), 'payment_method') ?: 'cod';
+
     try {
-        $order = place_order_from_cart($clean);
+        $order = place_order_from_cart($clean, $method);
     } catch (EmptyCartException $e) {
         api_fail(409, 'cart_empty', $e->getMessage());
     } catch (CartChangedException $e) {
@@ -144,7 +146,7 @@ api_route('POST', '/checkout', function () {
         api_fail(409, 'out_of_stock', $e->getMessage() . ' is no longer available in that quantity.');
     }
 
-    api_ok(['number' => $order['number'], 'redirect' => url('order-confirmation.php')], 201);
+    api_ok(['number' => $order['number'], 'redirect' => url($method === 'payhere' ? 'payhere-pay.php' : 'order-confirmation.php')], 201);
 });
 
 /* ---------- Contact ---------- */
