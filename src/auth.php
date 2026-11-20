@@ -229,7 +229,7 @@ function password_set(int $userId, string $password): void
 }
 
 
-/** For admin pages: send visitors to the admin login, and hide the admin area from everyone who is not an administrator. */
+/** For admin pages: guests and non-administrators are sent to the admin login page. */
 function admin_page_guard(): array
 {
     header('Cache-Control: no-store');
@@ -240,9 +240,7 @@ function admin_page_guard(): array
         redirect(url('admin/login.php'));
     }
     if (($user['role'] ?? '') !== 'admin') {
-        http_response_code(404);
-        require __DIR__ . '/../404.php';
-        exit;
+        redirect(url('admin/login.php') . '?denied=1');      // signed in, but not an administrator
     }
     return $user;
 }

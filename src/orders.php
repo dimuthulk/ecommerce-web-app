@@ -23,9 +23,10 @@ class CartChangedException extends RuntimeException
  * @param array $customer name, email, phone, line1, line2, city, postal, notes
  * @param array $lines    from cart_lines()
  * @param array $totals   from cart_totals()
+ * @param string $method  'cod' or 'payhere'
  * @return array{id:int, number:string}
  */
-function create_order(array $customer, array $lines, array $totals): array
+function create_order(array $customer, array $lines, array $totals, string $method = 'cod'): array
 {
     $pdo = db();
     $pdo->beginTransaction();
@@ -64,7 +65,7 @@ function create_order(array $customer, array $lines, array $totals): array
                 (:number, :user_id, "pending", :subtotal, 0, :shipping, :total,
                  :name, :email, :phone,
                  :line1, :line2, :city, :postal, :notes,
-                 "cod", "pending")'
+                 :method, "pending")'
         );
         $stmt->execute([
             ':number'   => 'TMP-' . bin2hex(random_bytes(8)),      // replaced below once the id is known
@@ -80,13 +81,14 @@ function create_order(array $customer, array $lines, array $totals): array
             ':city'     => $customer['city'],
             ':postal'   => $customer['postal'],
             ':notes'    => $customer['notes'] !== '' ? $customer['notes'] : null,
+            ':method'   => $method,
         ]);
 
         $id     = (int) $pdo->lastInsertId();
         $number = 'CB-' . (1000 + $id);                            // CB-1001, CB-1002 ...
         $pdo->prepare('UPDATE orders SET order_number = ? WHERE id = ?')->execute([$number, $id]);
         $pdo->prepare('INSERT INTO order_status_history (order_id, status, note) VALUES (?, "pending", ?)')
-            ->execute([$id, 'Order received; awaiting store confirmation.']);
+            ->execute([$id, $method === 'payhere' ? 'Order created; waiting for the PayHere payment.' : 'Order received; awaiting store confirmation.']);
 
         $item = $pdo->prepare(
             'INSERT INTO order_items
@@ -204,8 +206,10 @@ function order_history(int $orderId): array
  * @throws EmptyCartException, CartChangedException, OutOfStockException
  * @return array{id:int, number:string}
  */
-function place_order_from_cart(array $customer): array
+function place_order_from_cart(array $customer, string $method = 'cod'): array
 {
+    order_release_pending_payhere();                           // an unfinished online payment must not keep stock locked
+
     $lines = cart_lines();
     if (!$lines) {
         throw new EmptyCartException('Your bag is empty.');
@@ -215,7 +219,14 @@ function place_order_from_cart(array $customer): array
         throw new CartChangedException('Some items are no longer available in the quantity you chose.');
     }
 
-    $order = create_order($customer, $lines, $totals);        // takes the stock; may throw OutOfStockException
+    $order = create_order($customer, $lines, $totals, $method);   // takes the stock; may throw OutOfStockException
+
+    if ($method === 'payhere') {
+        // Online payment: the bag stays full and no e-mail is sent until PayHere confirms the payment (payhere-notify.php)
+        $_SESSION['payhere_order_id'] = $order['id'];
+        return $order;
+    }
+
     cart_clear();
     $_SESSION['last_order_id'] = $order['id'];
 
@@ -231,4 +242,115 @@ function place_order_from_cart(array $customer): array
         }
     }
     return $order;
+}
+
+
+/* ---------- Online payment (PayHere) ---------- */
+
+/**
+ * Cancel an order whose online payment did not happen and put its items back in stock.
+ * Only touches an order that is still pending and unpaid; returns true when it did.
+ */
+function order_release_unpaid(int $orderId, string $paymentStatus, string $note): bool
+{
+    $pdo = db();
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare('SELECT status, payment_status, payment_method FROM orders WHERE id = ? FOR UPDATE');
+        $stmt->execute([$orderId]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$order || $order['payment_method'] !== 'payhere' || $order['status'] !== 'pending' || $order['payment_status'] !== 'pending') {
+            $pdo->rollBack();
+            return false;
+        }
+
+        $items = $pdo->prepare('SELECT product_id, color, size, quantity FROM order_items WHERE order_id = ? AND product_id IS NOT NULL');
+        $items->execute([$orderId]);
+        $read   = $pdo->prepare('SELECT stock FROM products WHERE id = ? FOR UPDATE');
+        $update = $pdo->prepare('UPDATE products SET stock = ? WHERE id = ?');
+        foreach ($items->fetchAll(PDO::FETCH_ASSOC) as $item) {
+            $read->execute([$item['product_id']]);
+            $json = $read->fetchColumn();
+            if ($json === false) {
+                continue;
+            }
+            $stock = json_decode((string) $json, true) ?: [];
+            $stock[$item['color']][$item['size']] = (int) ($stock[$item['color']][$item['size']] ?? 0) + (int) $item['quantity'];
+            $update->execute([json_encode($stock, JSON_UNESCAPED_UNICODE), $item['product_id']]);
+        }
+
+        $pdo->prepare("UPDATE orders SET status = 'cancelled', payment_status = ? WHERE id = ?")->execute([$paymentStatus, $orderId]);
+        $pdo->prepare('INSERT INTO order_status_history (order_id, status, note) VALUES (?, "cancelled", ?)')->execute([$orderId, $note]);
+        $pdo->commit();
+        return true;
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
+}
+
+/** Release the visitor's unfinished PayHere order (if any), e.g. when they come back to checkout without paying. */
+function order_release_pending_payhere(): void
+{
+    $id = (int) ($_SESSION['payhere_order_id'] ?? 0);
+    if ($id > 0) {
+        unset($_SESSION['payhere_order_id']);
+        try {
+            order_release_unpaid($id, 'failed', 'Payment not completed; items returned to stock.');
+        } catch (Throwable $e) {
+            error_log('Release of unpaid order failed: ' . $e->getMessage());
+        }
+    }
+}
+
+/**
+ * PayHere confirmed the payment: the order becomes Paid / Processing. Safe to call twice (PayHere may repeat a callback).
+ * @return bool true when this call recorded the payment
+ */
+function order_mark_paid(int $orderId, string $reference): bool
+{
+    $pdo = db();
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare('SELECT status, payment_status FROM orders WHERE id = ? FOR UPDATE');
+        $stmt->execute([$orderId]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$order || $order['payment_status'] === 'paid') {
+            $pdo->rollBack();
+            return false;
+        }
+
+        $late = $order['status'] !== 'pending';                       // e.g. the order was cancelled before the payment arrived
+        $pdo->prepare(
+            "UPDATE orders SET payment_status = 'paid', paid_at = NOW(), transaction_ref = ?, status = IF(status = 'pending', 'processing', status) WHERE id = ?"
+        )->execute([$reference !== '' ? $reference : null, $orderId]);
+        $pdo->prepare('INSERT INTO order_status_history (order_id, status, note) VALUES (?, ?, ?)')->execute([
+            $orderId,
+            $late ? $order['status'] : 'processing',
+            $late ? 'Payment received after this order was ' . $order['status'] . '. Please review and refund if needed.' : 'Payment received via PayHere.',
+        ]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
+
+    if (MAIL_ENABLED && !$late) {
+        try {
+            $saved = find_order($orderId);
+            if ($saved) {
+                send_order_confirmation($saved);
+                send_admin_order_alert($saved);
+            }
+        } catch (Throwable $e) {
+            error_log('Order e-mail failed: ' . $e->getMessage());
+        }
+    }
+    return true;
 }

@@ -4,6 +4,8 @@
  * No errors = the input is fine.
  */
 
+require_once __DIR__ . '/payhere.php';
+
 function v_length(string $s): int
 {
     return function_exists('mb_strlen') ? mb_strlen($s) : strlen($s);
@@ -96,7 +98,8 @@ function validate_checkout(array $in): array
     if ($c['city'] === '' || v_length($c['city']) > 100) $e['city'] = 'Please enter your city.';
     if ($c['postal'] === '' || v_length($c['postal']) > 20) $e['postal'] = 'Please enter your postal code.';
     if (v_length($c['notes']) > 1000) $e['notes'] = 'Order notes are too long (1000 characters max).';
-    if (($in['payment_method'] ?? 'cod') !== 'cod') $e['payment'] = 'Please choose a payment method.';
+    $method = $in['payment_method'] ?? 'cod';
+    if (!in_array($method, payhere_enabled() ? ['cod', 'payhere'] : ['cod'], true)) $e['payment'] = 'Please choose a payment method.';
     if (empty($in['terms'])) $e['terms'] = 'Please accept the store terms and privacy policy.';
     return [$c, $e];
 }
