@@ -3,6 +3,10 @@ require_once __DIR__ . '/config/app.php';
 require_once __DIR__ . '/src/cart.php';
 require_once __DIR__ . '/src/orders.php';
 require_once __DIR__ . '/src/auth.php';
+require_once __DIR__ . '/src/payhere.php';
+
+// Back here from an unfinished online payment: put that order's items back in stock before checking the bag
+order_release_pending_payhere();
 
 /* ---------- 1. The bag must have orderable items ---------- */
 $lines = cart_lines();
@@ -17,6 +21,7 @@ if (!$totals['all_ok']) {
 }
 
 /* ---------- 2. Place the order (POST) ---------- */
+$payhereOn = payhere_enabled();
 $old    = ['name' => '', 'email' => '', 'phone' => '', 'line1' => '', 'line2' => '', 'city' => '', 'postal' => '', 'notes' => ''];
 $errors = [];
 
@@ -70,7 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($length($old['notes']) > 1000) {
         $errors['notes'] = 'Order notes are too long (1000 characters max).';
     }
-    if (($_POST['payment_method'] ?? 'cod') !== 'cod') {
+    $method = is_string($_POST['payment_method'] ?? null) ? $_POST['payment_method'] : 'cod';
+    if (!in_array($method, $payhereOn ? ['cod', 'payhere'] : ['cod'], true)) {
         $errors['payment'] = 'Please choose a payment method.';
     }
     if (empty($_POST['terms'])) {
@@ -79,8 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            place_order_from_cart($old);
-            redirect(url('order-confirmation.php'));
+            place_order_from_cart($old, $method);
+            redirect(url($method === 'payhere' ? 'payhere-pay.php' : 'order-confirmation.php'));
         } catch (EmptyCartException | CartChangedException $e) {
             toast('Please review your bag', 'error', ['text' => $e->getMessage()]);
             redirect(url('cart.php'));
@@ -95,6 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 /* ---------- 3. View helpers ---------- */
+$selectedMethod = (is_string($_POST['payment_method'] ?? null) && $_POST['payment_method'] === 'payhere' && $payhereOn) ? 'payhere' : 'cod';
+$summaryPayment = $selectedMethod === 'payhere' ? 'Pay online with PayHere' : 'Cash on delivery';
 $aria = static fn (string $key): string => isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="err-' . $key . '"' : '';
 $err  = static function (string $key) use ($errors): string {
     return isset($errors[$key]) ? '<p class="field-error" id="err-' . $key . '">' . e($errors[$key]) . '</p>' : '';
@@ -196,10 +204,17 @@ require_once __DIR__ . '/components/header.php';
             <section class="card form-card">
                 <h2>Payment method</h2>
                 <label class="check">
-                    <input type="radio" name="payment_method" value="cod" checked>
+                    <input type="radio" name="payment_method" value="cod"<?= $selectedMethod === 'cod' ? ' checked' : '' ?>>
                     <span>Cash on delivery</span>
                 </label>
                 <p class="form-card__text">Pay <?= e(format_price($totals['total'])) ?> when your order is delivered. No card information is collected.</p>
+                <?php if ($payhereOn): ?>
+                <label class="check">
+                    <input type="radio" name="payment_method" value="payhere"<?= $selectedMethod === 'payhere' ? ' checked' : '' ?>>
+                    <span>Pay online with PayHere (card or bank)</span>
+                </label>
+                <p class="form-card__text">You will be sent to PayHere to pay securely. We never see or store your card details.</p>
+                <?php endif; ?>
                 <?= $err('payment') ?>
             </section>
 

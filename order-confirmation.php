@@ -18,6 +18,10 @@ $address   = implode(', ', array_filter([$order['ship_line1'], $order['ship_line
 
 $paymentLabels = ['cod' => 'Cash on delivery', 'card' => 'Card', 'bank_transfer' => 'Bank transfer', 'payhere' => 'PayHere'];
 $paymentLabel  = $paymentLabels[$order['payment_method']] ?? 'Cash on delivery';
+$isPaid        = $order['payment_status'] === 'paid';
+$awaitingPay   = $order['payment_method'] === 'payhere' && $order['payment_status'] === 'pending' && $order['status'] === 'pending';
+$statusText    = ($isPaid && $order['status'] === 'processing') ? 'Paid / Processing' : ($awaitingPay ? 'Awaiting payment confirmation' : ucfirst($order['status']));
+$summaryPayment = $paymentLabel;
 
 $statusClass = match ($order['status']) {
     'pending'                                     => 'status-badge--pending',
@@ -49,7 +53,7 @@ require_once __DIR__ . '/components/header.php';
         <p class="eyebrow eyebrow--lg eyebrow--success">Order received</p>
         <h1>Thank you, <?= e($firstName) ?>.</h1>
         <p>Your order <?= e($order['order_number']) ?> has been recorded. Keep this reference for your records.</p>
-        <p class="status-badge <?= $statusClass ?>"><?= e(ucfirst($order['status'])) ?></p>
+        <p class="status-badge <?= $statusClass ?>"><?= e($statusText) ?></p>
     </header>
 
     <div class="confirm-layout">
@@ -76,7 +80,7 @@ require_once __DIR__ . '/components/header.php';
 
             <div class="order-row">
                 <span>Payment</span>
-                <span><?= e($paymentLabel) ?></span>
+                <span><?= e($paymentLabel . ($isPaid ? ' · Paid' : ($awaitingPay ? ' · Awaiting payment' : ''))) ?></span>
             </div>
         </section>
 
