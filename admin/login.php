@@ -28,6 +28,12 @@ require __DIR__ . '/../components/admin-header.php';
             <strong>Sign in unsuccessful</strong>
             <span id="login-error-text"></span>
         </div>
+        <?php if (isset($_GET['denied']) && $user !== null): ?>
+            <div class="alert alert--error" role="alert">
+                <strong>Access denied</strong>
+                <span>Your account does not have administrator permissions. Sign in with an administrator account to continue.</span>
+            </div>
+        <?php endif; ?>
         <p class="auth-lead">Sign in with your administrator credentials.</p>
 
         <form class="auth-form" id="admin-login" novalidate>
