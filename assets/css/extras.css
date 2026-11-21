@@ -173,6 +173,7 @@
 }
 
 @media (max-width: 768px) {
+
     .about-brand,
     .about-hero__img {
         min-height: 22rem;
