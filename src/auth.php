@@ -10,6 +10,13 @@ const LOGIN_MAX_FAILURES = 5;      // wrong passwords before the account is paus
 const LOGIN_LOCK_MINUTES = 15;
 const RESET_TOKEN_MINUTES = 60;
 
+// Passwords that attackers try first (compared in lower case)
+const PASSWORD_BLOCKLIST = [
+    'password', 'password1', 'password123', 'passw0rd', '12345678', '123456789', '1234567890', '123123123', '11111111',
+    'qwertyui', 'qwerty123', 'qwertyuiop', 'abc12345', 'abcd1234', 'iloveyou', 'letmein1', 'welcome1', 'welcome123',
+    'admin123', 'administrator', 'changeme', 'clothing123', 'sri lanka', 'srilanka123', 'colombo123', '87654321', '00000000',
+];
+
 /* ---------- Who is signed in ---------- */
 
 /** The signed-in user's row (cached for the request), or null. Pass true to reload after an update. */
@@ -110,6 +117,9 @@ function password_problem(string $password, ?string $confirm = null): ?string
     }
     if (strlen($password) > 72) {
         return 'Password can be up to 72 characters.';
+    }
+    if (preg_match('/^(.)\1+$/su', $password) || in_array(strtolower($password), PASSWORD_BLOCKLIST, true)) {
+        return 'That password is too easy to guess. Please choose a different one.';
     }
     if ($confirm !== null && $password !== $confirm) {
         return 'The two passwords do not match.';
