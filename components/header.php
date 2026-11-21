@@ -19,6 +19,52 @@ $navLinks = [
     'About'       => 'about.php',
     'Contact'     => 'contact.php',
 ];
+
+/* ---------- SEO: description, canonical address, robots, Open Graph ----------
+ * A page can set: $pageDescription, $ogImage (path from the site root), $ogType,
+ * $canonicalPath, $noindex (true) and $jsonLd (array, printed as JSON-LD). */
+$scriptName = basename($_SERVER['SCRIPT_NAME'] ?? '');
+
+$defaultDescriptions = [
+    'shop.php'            => 'Browse everyday clothing: tees, shirts, trousers and layers. Choose your color and size.',
+    'size-guide.php'      => 'How to measure yourself and find your size, from XS to XL.',
+    'delivery-policy.php' => 'How and when we deliver across Sri Lanka, delivery fees and order tracking.',
+    'returns-policy.php'  => 'Our returns and exchange policy, and how to start a return.',
+    'privacy-policy.php'  => 'How we collect, use and protect your personal information.',
+    'terms.php'           => 'The terms that apply when you shop with us.',
+];
+$metaDescription = !empty($pageDescription) ? (string) $pageDescription : ($defaultDescriptions[$scriptName] ?? (app_name() . '. ' . APP_TAGLINE));
+$metaDescription = trim((string) preg_replace('/\s+/', ' ', strip_tags($metaDescription)));
+if (function_exists('mb_strimwidth')) {
+    $metaDescription = mb_strimwidth($metaDescription, 0, 160, '...', 'UTF-8');
+} elseif (strlen($metaDescription) > 160) {
+    $metaDescription = substr($metaDescription, 0, 157) . '...';
+}
+
+// Private and technical pages stay out of search results
+$noindexPages = ['404.php', 'account.php', 'cart.php', 'checkout.php', 'login.php', 'register.php', 'forgot-password.php',
+                 'reset-password.php', 'orders.php', 'order-detail.php', 'order-confirmation.php', 'payhere-pay.php',
+                 'payhere-return.php', 'payhere-cancel.php', 'logout.php'];
+$isNoindex = !empty($noindex) || in_array($scriptName, $noindexPages, true) || http_response_code() === 404;
+
+if (empty($canonicalPath)) {
+    $reqPath = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    if (BASE_URL !== '' && strpos($reqPath, BASE_URL) === 0) {
+        $reqPath = substr($reqPath, strlen(BASE_URL));
+    }
+    $canonicalPath = trim($reqPath, '/');
+}
+$canonicalUrl = absolute_url($canonicalPath);
+
+$ogRel = !empty($ogImage) ? (string) $ogImage : (is_file(__DIR__ . '/../assets/images/og-image.png') ? 'assets/images/og-image.png' : '');
+$ogAbs = $ogRel !== '' ? absolute_url($ogRel) : '';
+
+if (empty($jsonLd) && $scriptName === 'index.php') {
+    $jsonLd = ['@context' => 'https://schema.org', '@type' => 'Organization', 'name' => app_name(), 'url' => absolute_url('')];
+}
+
+$iconDir  = __DIR__ . '/../assets/images/icons/';
+$hasIcon  = static fn (string $file): bool => is_file($iconDir . $file);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,8 +94,48 @@ $navLinks = [
     <?php if (!empty($noReferrer)): ?>
     <meta name="referrer" content="no-referrer">
     <?php endif; ?>
-    <?php if (!empty($pageDescription)): ?>
-    <meta name="description" content="<?= e($pageDescription) ?>">
+    <meta name="description" content="<?= e($metaDescription) ?>">
+    <?php if ($isNoindex): ?>
+    <meta name="robots" content="noindex, nofollow">
+    <?php else: ?>
+    <link rel="canonical" href="<?= e($canonicalUrl) ?>">
+    <?php endif; ?>
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Icons -->
+    <?php if (is_file(__DIR__ . '/../favicon.ico')): ?>
+    <link rel="icon" href="<?= e(url('favicon.ico')) ?>" sizes="48x48">
+    <?php endif; ?>
+    <?php if ($hasIcon('favicon-32x32.png')): ?>
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= e(asset('images/icons/favicon-32x32.png')) ?>">
+    <?php endif; ?>
+    <?php if ($hasIcon('favicon-16x16.png')): ?>
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= e(asset('images/icons/favicon-16x16.png')) ?>">
+    <?php endif; ?>
+    <?php if ($hasIcon('apple-touch-icon.png')): ?>
+    <link rel="apple-touch-icon" href="<?= e(asset('images/icons/apple-touch-icon.png')) ?>">
+    <?php endif; ?>
+    <?php if (is_file(__DIR__ . '/../site.webmanifest')): ?>
+    <link rel="manifest" href="<?= e(url('site.webmanifest')) ?>">
+    <?php endif; ?>
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:site_name" content="<?= e(app_name()) ?>">
+    <meta property="og:type" content="<?= e(!empty($ogType) ? (string) $ogType : 'website') ?>">
+    <meta property="og:title" content="<?= e($documentTitle) ?>">
+    <meta property="og:description" content="<?= e($metaDescription) ?>">
+    <meta property="og:url" content="<?= e($canonicalUrl) ?>">
+    <meta property="og:locale" content="en_LK">
+    <?php if ($ogAbs !== ''): ?>
+    <meta property="og:image" content="<?= e($ogAbs) ?>">
+    <meta name="twitter:image" content="<?= e($ogAbs) ?>">
+    <?php endif; ?>
+    <meta name="twitter:card" content="<?= $ogAbs !== '' ? 'summary_large_image' : 'summary' ?>">
+    <meta name="twitter:title" content="<?= e($documentTitle) ?>">
+    <meta name="twitter:description" content="<?= e($metaDescription) ?>">
+
+    <?php if (!empty($jsonLd) && is_array($jsonLd)): ?>
+    <script type="application/ld+json" nonce="<?= e(csp_nonce()) ?>"><?= json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
     <?php endif; ?>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,6 +145,7 @@ $navLinks = [
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/polish.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/extras.css') ?>">
 </head>
 <body>
     <div class="preloader" id="preloader" role="status">
