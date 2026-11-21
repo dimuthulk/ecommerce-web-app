@@ -239,7 +239,10 @@ function toasts_pull(): array
 /** Full URL (with https://host) for links inside e-mails. */
 function absolute_url(string $path = ''): string
 {
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
+        || strpos((string) ($_SERVER['HTTP_CF_VISITOR'] ?? ''), '"https"') !== false
+        ? 'https' : 'http';
     $origin = APP_URL !== '' ? rtrim(APP_URL, '/') : $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
     return $origin . url($path);
 }

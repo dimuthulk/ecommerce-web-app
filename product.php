@@ -146,6 +146,7 @@ $jsonLd = [
     'sku'         => $product['sku'],
     'description' => $description,
     'category'    => $product['category'],
+    'url'         => absolute_url('product/' . rawurlencode((string) $product['slug'])),
     'brand'       => ['@type' => 'Brand', 'name' => app_name()],
     'offers'      => [
         '@type'         => 'Offer',

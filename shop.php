@@ -94,6 +94,9 @@ $buildUrl = static function (array $query) {
 $pageUrl  = static fn (int $n): string => $buildUrl($baseQuery + ($n > 1 ? ['page' => $n] : []));
 $clearUrl = $buildUrl(array_intersect_key($baseQuery, ['q' => 1, 'sort' => 1]));   // clears filters, keeps search + sort
 
+// Filter/search/sort combinations are useful to shoppers, but create duplicate search landing pages.
+$noindex = $q !== '' || $selCats !== [] || $selSizes !== [] || $selColors !== [] || $inStockOnly || $sort !== 'recommended' || $page > 1;
+$canonicalPath = 'shop';
 $pageTitle       = 'Everyday clothing';
 $pageDescription = 'Considered pieces, made to be worn your way. Browse the full everyday clothing collection.';
 require_once __DIR__ . '/components/header.php';

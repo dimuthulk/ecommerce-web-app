@@ -54,13 +54,23 @@ if (empty($canonicalPath)) {
     }
     $canonicalPath = trim($reqPath, '/');
 }
+// Strip tracking and variant parameters from canonical URLs; use the clean product route.
+if ($scriptName === 'product.php' && !empty($product['slug'])) {
+    $canonicalPath = 'product/' . rawurlencode((string) $product['slug']);
+}
 $canonicalUrl = absolute_url($canonicalPath);
 
 $ogRel = !empty($ogImage) ? (string) $ogImage : (is_file(__DIR__ . '/../assets/images/og-image.png') ? 'assets/images/og-image.png' : '');
 $ogAbs = $ogRel !== '' ? absolute_url($ogRel) : '';
 
 if (empty($jsonLd) && $scriptName === 'index.php') {
-    $jsonLd = ['@context' => 'https://schema.org', '@type' => 'Organization', 'name' => app_name(), 'url' => absolute_url('')];
+    $jsonLd = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => app_name(),
+        'url' => absolute_url(''),
+        'publisher' => ['@type' => 'Organization', 'name' => app_name(), 'url' => absolute_url('')],
+    ];
 }
 
 $iconDir  = __DIR__ . '/../assets/images/icons/';
@@ -101,6 +111,7 @@ $hasIcon  = static fn (string $file): bool => is_file($iconDir . $file);
     <link rel="canonical" href="<?= e($canonicalUrl) ?>">
     <?php endif; ?>
     <meta name="theme-color" content="#ffffff">
+    <meta name="color-scheme" content="light">
 
     <!-- Icons -->
     <?php if (is_file(__DIR__ . '/../favicon.ico')): ?>

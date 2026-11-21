@@ -37,6 +37,7 @@ $menu = [
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/admin-modern.css') ?>">
 </head>
 <body class="admin" data-admin-page="<?= e($adminScript ?? $adminPage ?? '') ?>">
     <header class="admin-header">
