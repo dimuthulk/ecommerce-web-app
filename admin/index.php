@@ -7,7 +7,7 @@ $adminTitle = 'Dashboard';
 require __DIR__ . '/../components/admin-header.php';
 ?>
 <p class="admin-crumbs">Admin / Dashboard</p>
-<h1 class="admin-title">Dashboard</h1>
+<div class="dashboard-heading"><div><h1 class="admin-title">Dashboard</h1><p class="dashboard-intro">Your store performance at a glance.</p></div><a class="btn btn--outline dashboard-store-link" href="<?= url('/') ?>" target="_blank" rel="noopener noreferrer">View storefront ↗</a></div>
 <p class="admin-sub">Store data &middot; <?= e(date('j F Y')) ?></p>
 
 <div class="field admin-filter"><label for="period">Reporting period</label>
