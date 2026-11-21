@@ -106,11 +106,11 @@ $hasIcon  = static fn (string $file): bool => is_file($iconDir . $file);
     <?php if (is_file(__DIR__ . '/../favicon.ico')): ?>
     <link rel="icon" href="<?= e(url('favicon.ico')) ?>" sizes="48x48">
     <?php endif; ?>
-    <?php if ($hasIcon('favicon-32x32.png')): ?>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= e(asset('images/icons/favicon-32x32.png')) ?>">
+    <?php if ($hasIcon('favicon.svg')): ?>
+    <link rel="icon" type="image/svg+xml" href="<?= e(asset('images/icons/favicon.svg')) ?>">
     <?php endif; ?>
-    <?php if ($hasIcon('favicon-16x16.png')): ?>
-    <link rel="icon" type="image/png" sizes="16x16" href="<?= e(asset('images/icons/favicon-16x16.png')) ?>">
+    <?php if ($hasIcon('favicon-96x96.png')): ?>
+    <link rel="icon" type="image/png" sizes="96x96" href="<?= e(asset('images/icons/favicon-96x96.png')) ?>">
     <?php endif; ?>
     <?php if ($hasIcon('apple-touch-icon.png')): ?>
     <link rel="apple-touch-icon" href="<?= e(asset('images/icons/apple-touch-icon.png')) ?>">
