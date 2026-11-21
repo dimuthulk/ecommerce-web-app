@@ -1,0 +1,184 @@
+/* ==========================================================================
+   extras.css: social icons, cookie notice, size guide, About brand panel.
+   Loaded after polish.css. Uses theme.css tokens only. Safe to delete together with extras.js.
+   ========================================================================== */
+
+/* ---------- Social links (footer) ---------- */
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.social-links a {
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: var(--border);
+    border-radius: 50%;
+    background: var(--color-white);
+    color: var(--color-ink);
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.social-links a:hover {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-white);
+}
+
+.social-links a:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.social-links svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ---------- Cookie notice ---------- */
+.cookie-notice {
+    position: fixed;
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    max-width: 40rem;
+    margin-inline: auto;
+    padding: var(--space-4);
+    background: var(--color-white);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 30px rgba(16, 17, 30, 0.12);
+    font-size: var(--fs-sm);
+}
+
+.cookie-notice[hidden] {
+    display: none;
+}
+
+.cookie-notice a {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+.cookie-notice .btn {
+    flex: none;
+}
+
+@media (max-width: 640px) {
+    .cookie-notice {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-3);
+    }
+}
+
+/* ---------- Size guide ---------- */
+.size-guide {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 48rem;
+}
+
+.size-table-wrap {
+    margin-top: var(--space-4);
+    overflow-x: auto;
+}
+
+.size-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+}
+
+.size-table th,
+.size-table td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: var(--border);
+    white-space: nowrap;
+}
+
+.size-table thead th {
+    font-weight: var(--fw-medium);
+    color: var(--color-muted);
+    background: var(--color-surface);
+}
+
+.size-table tbody th {
+    font-weight: var(--fw-bold);
+}
+
+.size-steps {
+    margin-top: var(--space-3);
+    padding-left: var(--space-5);
+    list-style: decimal;
+    display: grid;
+    gap: var(--space-2);
+}
+
+.size-guide__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+/* ---------- About page: brand panel and photo ---------- */
+.about-brand,
+.about-hero__img {
+    width: 100%;
+    min-height: 30rem;
+    border-radius: var(--radius-md);
+}
+
+.about-hero__img {
+    height: 30rem;
+    object-fit: cover;
+}
+
+.about-brand {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    background: var(--color-accent-tint);
+    color: var(--color-accent);
+    text-align: center;
+}
+
+.about-brand__name {
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-bold);
+    line-height: 1.1;
+}
+
+.about-brand__tag {
+    font-size: var(--fs-base);
+    color: var(--color-ink);
+}
+
+@media (max-width: 768px) {
+    .about-brand,
+    .about-hero__img {
+        min-height: 22rem;
+    }
+
+    .about-hero__img {
+        height: 22rem;
+    }
+}
