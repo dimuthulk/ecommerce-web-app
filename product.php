@@ -110,8 +110,8 @@ if ($allSoldOut) {
 $availability = $size !== '' ? $color . ' / ' . $size . ' · ' . $available . ' available' : $color . ' is sold out';
 
 /* ---------- 5. Page content ---------- */
-$description = $product['description'] ?? 'A clean everyday silhouette with a relaxed fit. Sample product description; material and care details need client confirmation.';
-$details     = $product['details']     ?? 'Sample fit: relaxed. Sample fabric: cotton. Care label, composition and size measurements awaiting product approval.';
+$description = trim((string) ($product['description'] ?? '')) !== '' ? trim((string) $product['description']) : $product['name'];
+$details     = trim((string) ($product['details'] ?? ''));          // optional extra text; the section still shows without it
 $collection  = $product['collection']  ?? 'Everyday essentials';
 
 $views = ['Front view', 'Back view', 'Fabric detail', 'Fit reference'];
@@ -130,6 +130,36 @@ $related = array_slice($related, 0, 3);
 
 $pageTitle       = $product['name'];
 $pageDescription = $description;
+
+// Search + sharing: Open Graph picture and Product structured data (read by the header)
+$ogType  = 'product';
+$ogImage = !empty($product['images'][0]) ? (string) $product['images'][0] : null;
+
+$totalStock = 0;
+foreach ($stock as $bySize) {
+    $totalStock += array_sum(array_map('intval', (array) $bySize));
+}
+$jsonLd = [
+    '@context'    => 'https://schema.org',
+    '@type'       => 'Product',
+    'name'        => $product['name'],
+    'sku'         => $product['sku'],
+    'description' => $description,
+    'category'    => $product['category'],
+    'brand'       => ['@type' => 'Brand', 'name' => app_name()],
+    'offers'      => [
+        '@type'         => 'Offer',
+        'url'           => absolute_url('product/' . $product['slug']),
+        'priceCurrency' => currency_code(),
+        'price'         => number_format((float) (!empty($product['sale_price']) ? $product['sale_price'] : $product['price']), 2, '.', ''),
+        'availability'  => 'https://schema.org/' . ($totalStock > 0 ? 'InStock' : 'OutOfStock'),
+        'itemCondition' => 'https://schema.org/NewCondition',
+    ],
+];
+if (!empty($product['images'])) {
+    $jsonLd['image'] = array_map(static fn ($img): string => absolute_url((string) $img), array_values($product['images']));
+}
+
 require_once __DIR__ . '/components/header.php';
 ?>
 
@@ -138,7 +168,8 @@ require_once __DIR__ . '/components/header.php';
     <nav class="breadcrumb" aria-label="Breadcrumb">
         <ol>
             <li><a href="<?= url('/') ?>">Home</a></li>
-            <li aria-current="page">Product detail</li>
+            <li><a href="<?= url('shop.php') ?>">Shop</a></li>
+            <li aria-current="page"><?= e($product['name']) ?></li>
         </ol>
     </nav>
 
@@ -228,8 +259,10 @@ require_once __DIR__ . '/components/header.php';
             </form>
 
             <section class="product-details">
-                <h2>Details &amp; care</h2>
+                <h2><?= $details !== '' ? 'Details &amp; care' : 'Size &amp; delivery' ?></h2>
+                <?php if ($details !== ''): ?>
                 <p><?= e($details) ?></p>
+                <?php endif; ?>
                 <div class="product-details__links">
                     <a class="btn btn--ghost" href="<?= url('size-guide.php') ?>">Size guide &middot; <?= e($allSizes ? $allSizes[0] . '–' . end($allSizes) : '') ?></a>
                     <a class="btn btn--ghost" href="<?= url('delivery-policy.php') ?>">Delivery &amp; returns policies</a>
