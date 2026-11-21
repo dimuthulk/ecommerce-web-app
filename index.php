@@ -21,14 +21,14 @@ $promos = [
         'title'   => 'An easier kind of dressing.',
         'caption' => 'Linen collection / editorial styling',
         'image'   => 'promo-linen.webp',
-        'href'    => 'collections.php?collection=linen',
+        'href'    => 'shop.php?q=linen',
     ],
     [
         'eyebrow' => 'Essential cotton',
         'title'   => 'The foundation of your wardrobe.',
         'caption' => 'Cotton collection / fabric and fit',
         'image'   => 'promo-cotton.webp',
-        'href'    => 'collections.php?collection=cotton',
+        'href'    => 'shop.php?q=cotton',
     ],
 ];
 ?>

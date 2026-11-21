@@ -2579,3 +2579,199 @@ a.page-link:hover {
         text-align: left;
     }
 }
+
+/* ==========================================================================
+   Phase 3 — about page, hover / focus / active states, small responsive fixes
+   (append at the very end of style.css)
+   ========================================================================== */
+
+/* ---------- About: story, steps, call to action ---------- */
+.about-story {
+    margin-top: var(--space-7);
+    padding-top: var(--space-6);
+    border-top: var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-7);
+    align-items: start;
+}
+
+.about-story__text {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.about-steps {
+    margin-top: var(--space-7);
+    padding-top: var(--space-6);
+    border-top: var(--border);
+}
+
+.about-steps__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
+    margin-top: var(--space-5);
+}
+
+.about-step {
+    padding: var(--space-5);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition);
+}
+
+.about-step:hover {
+    border-color: var(--color-line);
+}
+
+.about-step__num {
+    display: block;
+    margin-bottom: var(--space-3);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    letter-spacing: var(--ls-eyebrow);
+    color: var(--color-accent);
+}
+
+.about-step p {
+    margin-top: var(--space-2);
+    font-size: var(--fs-sm);
+}
+
+.about-cta {
+    margin-top: var(--space-7);
+    padding: var(--space-6);
+    background: var(--color-accent-tint);
+    border-radius: var(--radius-md);
+}
+
+.about-cta p {
+    margin-top: var(--space-2);
+}
+
+.about-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+/* ---------- Buttons: pressed + disabled, clearer hover ---------- */
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn--outline:hover {
+    background: var(--color-surface);
+}
+
+.btn--primary:focus-visible {
+    outline-color: var(--color-ink);
+    outline-offset: 3px;
+}
+
+/* ---------- Chips, cards, links ---------- */
+a.chip:hover {
+    background: var(--color-surface);
+}
+
+a.chip[aria-current="page"] {
+    border-color: var(--color-ink);
+}
+
+.product-card__media {
+    overflow: hidden;
+}
+
+.product-card__media img {
+    transition: transform 300ms ease;
+}
+
+.product-card:hover .product-card__media img {
+    transform: scale(1.03);
+}
+
+.promo-card,
+.brand-strip {
+    transition: border-color var(--transition), background-color var(--transition);
+}
+
+.brand-strip:hover {
+    border-color: var(--color-line);
+}
+
+.footer-links a,
+.breadcrumb a,
+.cart-line__name a {
+    border-radius: var(--radius-sm);
+}
+
+.policy-nav .btn:hover {
+    background: var(--color-accent-tint);
+}
+
+.policy-section {
+    transition: border-color var(--transition);
+}
+
+.policy-section:target {
+    border-color: var(--color-accent);
+}
+
+/* ---------- Tablet / mobile ---------- */
+@media (max-width: 1024px) {
+
+    .about-story {
+        grid-template-columns: 1fr;
+        row-gap: var(--space-4);
+    }
+
+    .about-steps__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+
+    .about-steps__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about-cta {
+        padding: var(--space-5);
+    }
+
+    .about-cta__actions .btn {
+        width: 100%;
+    }
+
+    /* "Shop all clothing →" drops under the heading instead of squeezing it */
+    .section-head:not(.section-head--stacked) {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .brand-strip {
+        padding: var(--space-5);
+    }
+
+    .brand-strip .btn,
+    .promo-card .btn {
+        width: 100%;
+    }
+}
+
+/* Touch screens: no sticky hover zoom */
+@media (hover: none) {
+    .product-card:hover .product-card__media img {
+        transform: none;
+    }
+}
