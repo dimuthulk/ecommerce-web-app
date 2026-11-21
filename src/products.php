@@ -59,7 +59,7 @@ function product_public(array $p): array
         'sizes'       => product_sizes($p),
         'stock'       => $p['stock'],                    // { colour: { size: quantity } }
         'in_stock'    => product_units($p) > 0,
-        'images'      => array_map(static fn ($path) => url($path), $p['images']),
+        'images'      => array_map(static fn ($path) => product_image_url($path), $p['images']),
     ];
 }
 
