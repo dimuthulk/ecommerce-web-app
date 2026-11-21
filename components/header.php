@@ -25,6 +25,23 @@ $navLinks = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script nonce="<?= e(csp_nonce()) ?>">
+    /* Pre-loader gate: show it on the first page of a visit only; polish.js hides it (5s safety net here). */
+    (function (d) {
+        var h = d.documentElement;
+        h.classList.add('js');
+        try {
+            if (sessionStorage.getItem('pl-seen')) { h.classList.add('no-preloader'); return; }
+            sessionStorage.setItem('pl-seen', '1');
+        } catch (e) { h.classList.add('no-preloader'); return; }
+        h.classList.add('is-loading');
+        setTimeout(function () {
+            h.classList.remove('is-loading');
+            var p = d.getElementById('preloader');
+            if (p) p.classList.add('is-done');
+        }, 5000);
+    })(document);
+    </script>
     <title><?= e($documentTitle) ?></title>
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <meta name="api-base" content="<?= e(url('api')) ?>">
@@ -41,8 +58,17 @@ $navLinks = [
 
     <link rel="stylesheet" href="<?= asset('css/theme.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/polish.css') ?>">
 </head>
 <body>
+    <div class="preloader" id="preloader" role="status">
+        <div class="preloader__inner">
+            <p class="preloader__logo"><?= e(app_name()) ?><span class="preloader__dot" aria-hidden="true">.</span></p>
+            <div class="preloader__bar" aria-hidden="true"></div>
+            <span class="sr-only">Loading</span>
+        </div>
+    </div>
+
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">

@@ -52,5 +52,6 @@ $footerLinks = [
     <script src="<?= asset('js/api.js') ?>" defer></script>
     <script src="<?= asset('js/main.js') ?>" defer></script>
     <script src="<?= asset('js/storefront.js') ?>" defer></script>
+    <script src="<?= asset('js/polish.js') ?>" defer></script>
 </body>
 </html>

@@ -1,0 +1,390 @@
+/* ==========================================================================
+   polish.css — pre-loader, page transitions, skeleton loading, micro-animations
+   Loaded after style.css. Uses theme.css tokens only. Safe to delete: nothing else depends on it.
+   The "js" class on <html> is set by the tiny gate script in components/header.php.
+   ========================================================================== */
+
+html {
+    scroll-padding-top: calc(var(--header-h) + var(--space-4));
+}
+
+/* ---------- Pre-loader (first page of a visit only) ---------- */
+.preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    background: var(--color-white);
+    transition: opacity 450ms ease, visibility 0s linear 450ms;
+}
+
+.preloader.is-done {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+html:not(.js) .preloader,
+html.no-preloader .preloader {
+    display: none;
+}
+
+html.is-loading,
+html.is-loading body {
+    overflow: hidden;
+}
+
+.preloader__inner {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-5);
+}
+
+.preloader__logo {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    color: var(--color-ink);
+    animation: pl-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.preloader__dot {
+    color: var(--color-accent);
+    display: inline-block;
+    animation: pl-dot 1.2s ease-in-out infinite;
+}
+
+.preloader__bar {
+    position: relative;
+    width: 8rem;
+    height: 2px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--color-border);
+}
+
+.preloader__bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-accent);
+    transform: translateX(-100%);
+    animation: pl-bar 1.1s ease-in-out infinite;
+}
+
+@keyframes pl-rise {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes pl-dot {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes pl-bar {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* ---------- Page transitions ---------- */
+.site-main {
+    animation: page-in 420ms ease backwards;
+}
+
+html.is-loading .site-main,
+html.is-loading .hero__copy>*,
+html.is-loading .hero__img {
+    animation: none;
+}
+
+body.is-leaving .site-main,
+body.is-leaving .site-footer {
+    opacity: 0;
+    transition: opacity 180ms ease;
+}
+
+@keyframes page-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Home hero: copy rises in one line at a time, picture fades in */
+.hero__copy>* {
+    animation: rise-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.hero__copy> :nth-child(2) {
+    animation-delay: 80ms;
+}
+
+.hero__copy> :nth-child(3) {
+    animation-delay: 160ms;
+}
+
+.hero__copy> :nth-child(4) {
+    animation-delay: 240ms;
+}
+
+.hero__img {
+    animation: page-in 900ms ease 120ms backwards;
+}
+
+/* Cart bag swapped after a change */
+.page-top.is-refreshed {
+    animation: page-in 350ms ease both;
+}
+
+/* ---------- Scroll reveal (classes are added by polish.js, only below the fold) ---------- */
+.reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 600ms ease, transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* ---------- Skeleton loading ---------- */
+.skel,
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.skel::after,
+.skeleton::after,
+.product-grid.is-filtering .product-card__media::after,
+.cart-line.is-updating::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.75) 50%, transparent 70%);
+    transform: translateX(-100%);
+    animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Reusable blocks for any loading state: <div class="skeleton skeleton-line"></div> */
+.skeleton-line {
+    height: 0.875rem;
+    border-radius: var(--radius-sm);
+}
+
+.skeleton-line--short {
+    width: 40%;
+}
+
+.skeleton-box {
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* Images fade in once loaded instead of popping in */
+.site-main img {
+    transition: opacity 400ms ease, transform 300ms ease;
+}
+
+.site-main img.img-pending {
+    opacity: 0;
+}
+
+/* Shop: while a filter / sort is applied, the grid shows skeleton tiles */
+.product-grid.is-filtering .product-card {
+    pointer-events: none;
+}
+
+.product-grid.is-filtering .product-card__media {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.product-grid.is-filtering .product-card__media img {
+    opacity: 0;
+}
+
+.product-grid.is-filtering .product-card__body,
+.product-grid.is-filtering .product-card__cta {
+    opacity: 0.45;
+}
+
+/* Cart: the line being changed */
+.cart-line.is-updating {
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cart-line.is-updating>* {
+    opacity: 0.55;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    transition: background-color var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        transform var(--transition),
+        box-shadow 200ms ease;
+}
+
+.btn--primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px -10px var(--color-accent);
+}
+
+.btn--outline:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+/* Spinner while a form is being sent */
+.btn.is-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+.btn.is-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.1em;
+    height: 1.1em;
+    margin: -0.55em 0 0 -0.55em;
+    border: 2px solid var(--color-line);
+    border-top-color: var(--color-ink);
+    border-radius: 50%;
+    animation: spin 700ms linear infinite;
+}
+
+.btn--primary.is-loading::after {
+    border-color: rgba(255, 255, 255, 0.4);
+    border-top-color: var(--color-white);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- Small touches ---------- */
+.chip {
+    transition: background-color var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        transform var(--transition);
+}
+
+.chip:hover {
+    transform: translateY(-1px);
+}
+
+.site-header {
+    transition: box-shadow 250ms ease;
+}
+
+.site-header.is-scrolled {
+    box-shadow: 0 10px 28px -22px rgba(16, 17, 30, 0.45);
+}
+
+.input,
+select,
+textarea {
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+/* Bag badge pops when the count changes */
+.bag-badge.is-bump {
+    animation: badge-pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+@keyframes badge-pop {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.35);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ---------- Reduced motion: no looping or sliding effects ---------- */
+@media (prefers-reduced-motion: reduce) {
+
+    .preloader__bar::after,
+    .preloader__dot,
+    .skel::after,
+    .skeleton::after,
+    .product-grid.is-filtering .product-card__media::after,
+    .cart-line.is-updating::after,
+    .btn.is-loading::after {
+        animation: none;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .btn--primary:hover:not(:disabled),
+    .btn--outline:hover:not(:disabled),
+    .chip:hover {
+        transform: none;
+    }
+}
