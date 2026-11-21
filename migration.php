@@ -6,7 +6,8 @@
  * Remote : https://your-site.com/migration.php?key=YOUR_SECRET_KEY
  *
  * Remote secret: add this line to config/database.remote.php (the file that is NOT in git):
- *     define('MIGRATION_SECRET', 'long-random-string');
+ *     define('MIGRATION_SECRET', 'long-random-string');      // at least 24 characters
+ * After the live database is up to date, delete migration.php from the server.
  */
 
 const CONFIG_LOCAL  = __DIR__ . '/config/database.local.php';  // defines $pdo (ecommerce_web_app)
@@ -16,7 +17,9 @@ const SQL_FILE      = __DIR__ . '/database/migrations.sql';
 // ───── 1. Local or remote? ─────
 $isCli   = (PHP_SAPI === 'cli');
 $host    = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$isLocal = $isCli || in_array(explode(':', $host)[0], ['localhost', '127.0.0.1', '::1'], true);
+// "Local" = localhost Host header AND the request comes from this computer (a Host header alone can be faked)
+$isLocal = $isCli || (in_array(explode(':', $host)[0], ['localhost', '127.0.0.1', '::1'], true)
+    && in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1', '::ffff:127.0.0.1'], true));
 
 if (!$isCli) {
     header('Content-Type: text/plain; charset=utf-8');
@@ -32,8 +35,10 @@ require_once $configFile;
 // ───── 3. Remote: secret key required ─────
 if (!$isLocal) {
     $key = $_GET['key'] ?? '';
-    if (!defined('MIGRATION_SECRET') || !hash_equals(MIGRATION_SECRET, $key)) {
+    // A short or guessable secret is as good as none: refuse to run until it is long and random
+    if (!defined('MIGRATION_SECRET') || strlen((string) MIGRATION_SECRET) < 24 || !is_string($key) || !hash_equals((string) MIGRATION_SECRET, $key)) {
         http_response_code(403);
+        header('Cache-Control: no-store');
         die('Forbidden');
     }
 }
@@ -148,7 +153,11 @@ try {
 
     echo "\nMigration finished. $ok statement(s) executed.\n";
 } catch (PDOException $e) {
-    echo "\n✘ Migration failed: " . $e->getMessage() . "\n";
-    echo "Failed statement:\n" . substr($statement, 0, 200) . "...\n";
+    error_log('Migration failed: ' . $e->getMessage());
+    echo "\n✘ Migration failed. The details are in the server error log.\n";
+    if ($isLocal) {
+        echo $e->getMessage() . "\n";
+        echo "Failed statement:\n" . substr($statement ?? '', 0, 200) . "...\n";
+    }
     exit(1);
 }
