@@ -61,7 +61,21 @@ if ($scriptName === 'product.php' && !empty($product['slug'])) {
 $canonicalUrl = absolute_url($canonicalPath);
 
 $ogRel = !empty($ogImage) ? (string) $ogImage : (is_file(__DIR__ . '/../assets/images/og-image.png') ? 'assets/images/og-image.png' : '');
-$ogAbs = $ogRel !== '' ? absolute_url($ogRel) : '';
+$ogAbs = $ogRel !== '' ? (preg_match('~^https?://~i', $ogRel) ? $ogRel : absolute_url(ltrim($ogRel, '/'))) : '';
+$ogWidth = $ogHeight = null;
+$ogMime = '';
+if ($ogRel !== '' && !preg_match('~^https?://~i', $ogRel)) {
+    $ogLocalPath = realpath(__DIR__ . '/../' . ltrim((string) parse_url($ogRel, PHP_URL_PATH), '/'));
+    $siteRoot = realpath(__DIR__ . '/..');
+    if ($ogLocalPath && $siteRoot && str_starts_with($ogLocalPath, $siteRoot . DIRECTORY_SEPARATOR) && is_file($ogLocalPath)) {
+        $ogInfo = @getimagesize($ogLocalPath);
+        if ($ogInfo) {
+            $ogWidth = (int) $ogInfo[0];
+            $ogHeight = (int) $ogInfo[1];
+            $ogMime = (string) ($ogInfo['mime'] ?? '');
+        }
+    }
+}
 
 if (empty($jsonLd) && $scriptName === 'index.php') {
     $jsonLd = [
@@ -139,6 +153,15 @@ $hasIcon  = static fn (string $file): bool => is_file($iconDir . $file);
     <meta property="og:locale" content="en_LK">
     <?php if ($ogAbs !== ''): ?>
     <meta property="og:image" content="<?= e($ogAbs) ?>">
+    <meta property="og:image:secure_url" content="<?= e($ogAbs) ?>">
+    <?php if ($ogWidth && $ogHeight): ?>
+    <meta property="og:image:width" content="<?= $ogWidth ?>">
+    <meta property="og:image:height" content="<?= $ogHeight ?>">
+    <?php endif; ?>
+    <?php if ($ogMime): ?>
+    <meta property="og:image:type" content="<?= e($ogMime) ?>">
+    <?php endif; ?>
+    <meta property="og:image:alt" content="<?= e(app_name() . ' — ' . APP_TAGLINE) ?>">
     <meta name="twitter:image" content="<?= e($ogAbs) ?>">
     <?php endif; ?>
     <meta name="twitter:card" content="<?= $ogAbs !== '' ? 'summary_large_image' : 'summary' ?>">
