@@ -1,8 +1,22 @@
 RewriteEngine On
 
+# No folder listings, and a few safe headers for static files (pages get theirs from src/security.php)
+Options -Indexes
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
 # ---------- 1) Block direct browser access to internal folders ----------
 # (PHP includes still work; only HTTP requests are blocked.)
-RewriteRule ^(config|database|data|components|storage|vendor|src)(/|$) 404.php [L]
+RewriteRule ^(config|database|data|components|storage|vendor|src|docs|\.git|\.github)(/|$) 404.php [L]
+
+# Source, notes, SQL, logs, backups and config-like files are never served
+<FilesMatch "\.(sql|md|log|yml|yaml|bak|old|orig|dist|ini|lock|sh|example|sample)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^\.(?!well-known)">
+  Require all denied
+</FilesMatch>
 
 # FTP-Deploy-Action's sync state file
 <Files ".ftp-deploy-sync-state.json">

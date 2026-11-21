@@ -18,8 +18,13 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-mail.example.php
-mail.local.php
-mail.remote.php
+# Secrets: keep them out of git (config/*.example.php are the committed templates)
+config/mail.local.php
+config/mail.remote.php
 config/payhere.local.php
 config/payhere.remote.php
+
+# Runtime files
+storage/*
+!storage/.htaccess
+!storage/.gitkeep
