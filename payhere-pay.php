@@ -32,6 +32,6 @@ require_once __DIR__ . '/components/header.php';
         <a class="btn btn--ghost" href="<?= url('payhere-cancel.php') ?>">Cancel payment</a>
     </form>
 </div>
-<script>document.getElementById('payhere-form').submit();</script>
+<script nonce="<?= e(csp_nonce()) ?>">document.getElementById('payhere-form').submit();</script>
 
 <?php require_once __DIR__ . '/components/footer.php'; ?>
