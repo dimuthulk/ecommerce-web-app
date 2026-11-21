@@ -22,6 +22,20 @@ function asset(string $path): string
     return BASE_URL . '/assets/' . $path . $v;
 }
 
+/** Canonical, same-origin URL for product images saved as site-relative paths. */
+function product_image_url(string $path): string
+{
+    $path = trim(str_replace('\\/', '/', $path));
+    $path = str_replace('\\', '/', $path);
+    // Only locally uploaded product images are accepted; avoid remote/unsafe URLs.
+    $prefix = 'assets/uploads/products/';
+    $position = strpos(ltrim($path, '/'), $prefix);
+    if ($position === false) return url(ltrim($path, '/'));
+    $relative = substr(ltrim($path, '/'), $position);
+    if (!preg_match('~^assets/uploads/products/[a-zA-Z0-9_-]+\.(?:jpg|jpeg|png|webp|gif)$~i', $relative)) return url('assets/images/placeholder.svg');
+    return BASE_URL . '/' . $relative;
+}
+
 /** Escape text for safe output in HTML */
 function e(?string $value): string
 {
