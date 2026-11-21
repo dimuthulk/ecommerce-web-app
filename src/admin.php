@@ -111,7 +111,7 @@ function admin_product_view(array $p): array
         'published'   => $p['is_active'],
         'units'       => product_units($p),
         'variants'    => admin_variants([$p]),
-        'images'      => array_map(static fn ($path) => ['path' => $path, 'url' => url($path)], $p['images']),
+        'images'      => array_map(static fn ($path) => ['path' => $path, 'url' => product_image_url($path)], $p['images']),
         'image_alt'   => (string) $p['image_alt'],
         'url'         => product_url($p['slug']),
     ];
@@ -227,38 +227,67 @@ function admin_save_product(int $id, array $c): int
     return $id;
 }
 
-/** Save an uploaded picture and return its path (relative to the site root). */
+/** Store a validated image, using quality-conscious WebP compression where GD supports it.
+ * Only the relative path is saved in the products.images JSON database column.
+ */
 function admin_store_image(array $file): string
 {
-    $messages = [UPLOAD_ERR_INI_SIZE => 'The image is larger than the server allows.', UPLOAD_ERR_FORM_SIZE => 'The image is too large.', UPLOAD_ERR_NO_FILE => 'Choose an image to upload.'];
-    $error = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+    $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
     if ($error !== UPLOAD_ERR_OK) {
-        api_fail(422, 'upload_failed', $messages[$error] ?? 'The upload failed. Please try again.', ['image' => $messages[$error] ?? 'The upload failed.']);
+        api_fail(422, 'upload_failed', 'Upload failed (code ' . $error . '). Check the server upload size limit.');
     }
-    if ($file['size'] > MAX_IMAGE_BYTES) {
-        api_fail(422, 'upload_failed', 'The image must be 3 MB or smaller.', ['image' => 'The image must be 3 MB or smaller.']);
+    if (!is_uploaded_file((string) ($file['tmp_name'] ?? '')) || (int) ($file['size'] ?? 0) > MAX_IMAGE_BYTES) {
+        api_fail(422, 'upload_failed', 'Choose an image no larger than 3 MB.');
     }
-
     $info = @getimagesize($file['tmp_name']);
-    $ext  = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp', IMAGETYPE_GIF => 'gif'][$info[2] ?? 0] ?? null;
-    if ($ext === null) {
-        api_fail(422, 'upload_failed', 'Only JPG, PNG, WEBP or GIF pictures are allowed.', ['image' => 'Only JPG, PNG, WEBP or GIF pictures are allowed.']);
+    $type = (int) ($info[2] ?? 0);
+    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP, IMAGETYPE_GIF], true)) {
+        api_fail(422, 'upload_failed', 'Only JPG, PNG, WEBP and GIF images are supported.');
     }
-
+    if (($info[0] ?? 0) * ($info[1] ?? 0) > 36000000) {
+        api_fail(422, 'upload_failed', 'Image dimensions are too large.');
+    }
     $dir = __DIR__ . '/../assets/uploads/products';
-    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
-        api_fail(500, 'server_error', 'The upload folder could not be created.');
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) api_fail(500, 'server_error', 'Upload directory unavailable.');
+    $extensions = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp', IMAGETYPE_GIF => 'gif'];
+    $ext = $extensions[$type];
+    $name = bin2hex(random_bytes(10));
+    $target = $dir . '/' . $name . '.' . $ext;
+    $saved = false;
+    // Preserve animated GIFs; for still images, optimize to WebP (quality 85).
+    if ($type !== IMAGETYPE_GIF && function_exists('imagewebp')) {
+        $loaders = [IMAGETYPE_JPEG => 'imagecreatefromjpeg', IMAGETYPE_PNG => 'imagecreatefrompng', IMAGETYPE_WEBP => 'imagecreatefromwebp'];
+        $loader = $loaders[$type] ?? null;
+        if ($loader && function_exists($loader)) {
+            $source = @$loader($file['tmp_name']);
+            if ($source !== false) {
+                $width = imagesx($source); $height = imagesy($source);
+                $scale = min(1, 2000 / max($width, $height));
+                $newW = max(1, (int) round($width * $scale));
+                $newH = max(1, (int) round($height * $scale));
+                $canvas = imagecreatetruecolor($newW, $newH);
+                imagealphablending($canvas, false);
+                imagesavealpha($canvas, true);
+                $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+                imagefill($canvas, 0, 0, $transparent);
+                imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $width, $height);
+                $candidate = $dir . '/' . $name . '.webp';
+                if (@imagewebp($canvas, $candidate, 85) && is_file($candidate) && filesize($candidate) > 0 && filesize($candidate) < $file['size']) {
+                    $target = $candidate;
+                    $ext = 'webp';
+                    $saved = true;
+                } else {
+                    @unlink($candidate);
+                }
+                imagedestroy($canvas);
+                imagedestroy($source);
+            }
+        }
     }
-    // uploaded files may never run as PHP
-    if (!is_file(__DIR__ . '/../assets/uploads/.htaccess')) {
-        @file_put_contents(__DIR__ . '/../assets/uploads/.htaccess', "<FilesMatch \"\\.(php|phtml|phar|pl|cgi)$\">\n  Require all denied\n</FilesMatch>\n");
+    if (!$saved && !move_uploaded_file($file['tmp_name'], $target)) {
+        api_fail(500, 'server_error', 'Image could not be saved. Check upload folder permissions.');
     }
-
-    $name = bin2hex(random_bytes(10)) . '.' . $ext;
-    if (!move_uploaded_file($file['tmp_name'], $dir . '/' . $name)) {
-        api_fail(500, 'server_error', 'The image could not be saved.');
-    }
-    return 'assets/uploads/products/' . $name;
+    return 'assets/uploads/products/' . $name . '.' . $ext;
 }
 
 /* ==========================================================================
