@@ -1098,3 +1098,24 @@
 .admin-status--success strong {
     color: var(--color-success);
 }
+
+/* Center native admin confirmation dialogs across desktop and mobile. */
+.admin-dialog[open] {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+    .admin-dialog[open] {
+        width: calc(100vw - 2rem);
+    }
+
+    .admin-dialog .admin-actions {
+        flex-wrap: wrap;
+    }
+}
