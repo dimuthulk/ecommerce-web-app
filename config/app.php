@@ -17,21 +17,39 @@ define(
         : ''
 );
 
-// Sessions: the cookie is HTTP-only, same-site, and "secure" on https
+// Sessions: HTTP-only, same-site, "secure" on https (also behind a proxy), strict mode (no session ids chosen by the visitor)
 if (session_status() === PHP_SESSION_NONE) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
+        || strpos((string) ($_SERVER['HTTP_CF_VISITOR'] ?? ''), '"https"') !== false;
+
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_trans_sid', '0');
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => BASE_URL !== '' ? BASE_URL . '/' : '/',
         'httponly' => true,
         'samesite' => 'Lax',
-        'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'secure'   => $isHttps,
     ]);
     session_start();
 }
 
-// True on localhost / 127.0.0.1 (development), false on the live site
+// True on localhost (development), false on the live site. The Host header alone can be faked by anyone,
+// so the request must ALSO come from this very computer (loopback address).
 $hostName = explode(':', $_SERVER['HTTP_HOST'] ?? 'localhost')[0];
-define('IS_LOCAL', PHP_SAPI === 'cli' || in_array($hostName, ['localhost', '127.0.0.1', '::1'], true));
+define(
+    'IS_LOCAL',
+    PHP_SAPI === 'cli'
+        || (in_array($hostName, ['localhost', '127.0.0.1', '::1'], true)
+            && in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1', '::ffff:127.0.0.1'], true))
+);
+
+// Never print PHP errors into pages on the live site (they are still written to the error log)
+if (!IS_LOCAL) {
+    ini_set('display_errors', '0');
+}
 
 // Site address used in e-mail links, e.g. 'https://your-site.infinityfreeapp.com'. Empty = detect from the request.
 define('APP_URL', '');
@@ -44,3 +62,6 @@ define('ORDER_EMAILS_ENABLED', MAIL_ENABLED);      // order confirmation e-mails
 
 require __DIR__ . '/../src/helpers.php';
 require __DIR__ . '/../src/settings.php';
+require __DIR__ . '/../src/security.php';
+
+security_boot();     // headers, same-origin check, rate limits, session timeouts
