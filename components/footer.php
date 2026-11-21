@@ -22,10 +22,10 @@ $footerLinks = [
 // SAMPLE social links: replace each address with the brand's real page once the accounts exist.
 // Leave an address empty ('') to hide that icon.
 $socialLinks = [
-    ['Facebook',  'https://www.facebook.com/clothingbrand',  '<path fill="currentColor" stroke="none" d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21z"/>'],
-    ['Instagram', 'https://www.instagram.com/clothingbrand', '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/>'],
-    ['TikTok',    'https://www.tiktok.com/@clothingbrand',   '<path d="M14 3v11.2a3.7 3.7 0 1 1-3.7-3.7"/><path d="M14 3c.4 2.6 2 4.2 4.7 4.5"/>'],
-    ['WhatsApp',  'https://wa.me/94770000000',               '<path d="M3.5 20.5l1.2-4.3A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.8c.2 2.3 2.4 4.7 5.2 5.4l1-1.1-1.7-.9-.8.6c-.7-.3-1.6-1.2-1.9-1.9l.6-.8-.9-1.7z"/>'],
+    ['Facebook',  'https://www.facebook.com/dimuthulkonline',  '<path fill="currentColor" stroke="none" d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21z"/>'],
+    ['Instagram', 'https://www.instagram.com/_dimuthu_lk_', '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/>'],
+    ['TikTok',    'https://www.tiktok.com/@dimuthulk',   '<path d="M14 3v11.2a3.7 3.7 0 1 1-3.7-3.7"/><path d="M14 3c.4 2.6 2 4.2 4.7 4.5"/>'],
+    ['WhatsApp',  'https://wa.me/94768050633',               '<path d="M3.5 20.5l1.2-4.3A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.8c.2 2.3 2.4 4.7 5.2 5.4l1-1.1-1.7-.9-.8.6c-.7-.3-1.6-1.2-1.9-1.9l.6-.8-.9-1.7z"/>'],
 ];
 ?>
     </main>
