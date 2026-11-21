@@ -1,5 +1,5 @@
-# Uploaded pictures only: nothing in here may ever run as a script
-Options -Indexes -ExecCGI
+# Keep uploaded files non-executable without using Options directives,
+# which can cause HTTP 500 on shared hosting where AllowOverride Options is disabled.
 <FilesMatch "\.(php|phtml|phar|pl|cgi|py|sh|html?|svg)$">
   Require all denied
 </FilesMatch>
