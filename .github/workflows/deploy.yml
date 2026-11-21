@@ -1,5 +1,9 @@
 name: Deploy to InfinityFree
 
+# The workflow token can only read the repository (it never needs more)
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -28,4 +32,9 @@ jobs:
             .github/**
             .gitignore
             README.md
+            docs/**
             config/database.local.php
+            config/mail.local.php
+            config/payhere.local.php
+            config/*.example.php
+            **/.env*
