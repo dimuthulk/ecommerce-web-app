@@ -202,6 +202,7 @@
         '<button type="button" class="btn btn--outline btn--block" id="upload" style="margin-top:.75rem">' +
         (first ? "Add additional image" : "Upload image") +
         "</button>" +
+        '<div id="image-upload-progress" class="image-upload-progress" hidden role="status" aria-live="polite"><div class="image-upload-progress__track"><div class="image-upload-progress__fill" style="width:0%"></div></div><span class="image-upload-progress__label">Uploading 0%</span></div>' +
         '<p class="admin-note">' +
         (first
           ? "Main picture. The first picture is shown first in the store."
@@ -412,10 +413,24 @@
         if (!file.files.length) return;
         const form = new FormData();
         form.append("image", file.files[0]);
+        const progress = $("#image-upload-progress");
+        const button = $("#upload");
+        progress.hidden = false;
+        button.disabled = true;
+        const showProgress = (percent) => {
+          progress.querySelector(".image-upload-progress__fill").style.width =
+            percent + "%";
+          progress.querySelector(".image-upload-progress__label").textContent =
+            percent === 100
+              ? "Upload complete — processing image…"
+              : "Uploading " + percent + "%";
+        };
+        showProgress(0);
         try {
           const { data } = await api.upload(
             "/admin/products/" + id + "/images",
             form,
+            showProgress,
           );
           product = data;
           $("#images-panel").innerHTML =
@@ -425,6 +440,9 @@
         } catch (error) {
           Kit.toast("Upload failed", "error", error.message);
           file.value = "";
+        } finally {
+          button.disabled = false;
+          if (progress.isConnected) progress.hidden = true;
         }
       });
       $$("[data-remove]", app).forEach((b) =>
