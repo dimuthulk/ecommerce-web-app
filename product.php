@@ -118,7 +118,7 @@ $views = ['Front view', 'Back view', 'Fabric detail', 'Fit reference'];
 $media = static function (int $i, bool $main) use ($product, $views): string {
     $img = $product['images'][$i] ?? null;
     if ($img) {
-        return '<img src="' . e(url($img)) . '" alt="' . e($product['name'] . ' / ' . strtolower($views[$i])) . '">';
+        return '<img src="' . e(product_image_url($img)) . '" alt="' . e($product['name'] . ' / ' . strtolower($views[$i])) . '">';
     }
     $caption = $main ? $product['name'] . ' / ' . strtolower($views[$i]) : $views[$i];
     return image_placeholder($caption, true, 'gallery');
