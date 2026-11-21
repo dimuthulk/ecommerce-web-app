@@ -1,0 +1,22 @@
+/* Visual refinement only: existing admin APIs, routes and workflows are unchanged. */
+body.admin { background: #f5f7fb; }
+.admin-header { box-shadow: 0 1px 0 rgba(20,35,60,.07); }
+.admin-main { min-width: 0; }
+.admin-sidebar { border-right: 1px solid #e6eaf0; }
+.admin-nav-link { border-radius: 11px; transition: background .18s ease, color .18s ease, transform .18s ease; }
+.admin-nav-link:hover { transform: translateX(2px); }
+.admin-nav-link:focus-visible, .admin-header button:focus-visible { outline: 3px solid #86a9f5; outline-offset: 2px; }
+.dashboard-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+.dashboard-heading .admin-title { margin-bottom:.15rem; }
+.dashboard-intro { margin:.1rem 0 .8rem; color:#667085; font-size:.94rem; }
+.dashboard-store-link { white-space:nowrap; }
+.admin-main .card { border:1px solid #e8edf3; border-radius:16px; box-shadow:0 5px 20px rgba(25,40,65,.035); }
+.admin-main .stat { position:relative; overflow:hidden; }
+.admin-main .stat:before { content:""; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#283f67,#94a9c8); }
+.admin-main .stat__value { font-variant-numeric:tabular-nums; letter-spacing:-.035em; }
+.admin-main .admin-panel { min-width:0; }
+.admin-main .bar { overflow:hidden; border-radius:999px; }
+.admin-main .bar > span { border-radius:999px; }
+.admin-main table { width:100%; }
+@media (max-width:760px) { .dashboard-heading { align-items:flex-start; } .dashboard-store-link { width:100%; text-align:center; } .admin-main .stat-grid { grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); } }
+@media (prefers-reduced-motion:reduce) { .admin-nav-link { transition:none; } }
