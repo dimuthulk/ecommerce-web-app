@@ -73,7 +73,7 @@ function cart_public(): array
             'name'       => $p['name'],
             'sku'        => $p['sku'],
             'url'        => product_url($p['slug']),
-            'image'      => isset($p['images'][0]) ? url($p['images'][0]) : null,
+            'image'      => isset($p['images'][0]) ? product_image_url($p['images'][0]) : null,
             'color'      => $l['color'],
             'size'       => $l['size'],
             'quantity'   => $l['qty'],
